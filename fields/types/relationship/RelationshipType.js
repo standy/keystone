@@ -13,7 +13,7 @@ function relationship(list, path, options) {
 	this.many = (options.many) ? true : false;
 	this.filters = options.filters;
 	this._defaultSize = 'full';
-	this._nativeType = keystone.mongoose.Schema.Types.ObjectId;
+	this._nativeType = options.nativeType || keystone.mongoose.Schema.Types.ObjectId;
 	this._underscoreMethods = ['format'];
 	this._properties = ['isValid', 'many', 'filters'];
 	relationship.super_.call(this, list, path, options);
