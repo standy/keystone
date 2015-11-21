@@ -14,6 +14,7 @@ module.exports = {
 	html:             require('../../fields/types/html/HtmlField'),
 	key:              require('../../fields/types/key/KeyField'),
 	localfile:  	  require('../../fields/types/localfile/LocalFileField'),
+	localimage:  	  require('../../fields/types/localimage/LocalImageField'),
 	localfiles:       require('../../fields/types/localfiles/LocalFilesField'),
 	location:         require('../../fields/types/location/LocationField'),
 	markdown:         require('../../fields/types/markdown/MarkdownField'),

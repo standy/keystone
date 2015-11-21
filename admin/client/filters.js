@@ -14,6 +14,7 @@ module.exports = {
 	html:             require('../../fields/types/html/HtmlFilter'),
 	key:              require('../../fields/types/key/KeyFilter'),
 	localfile:  	  require('../../fields/types/localfile/LocalFileFilter'),
+	localimage:  	  require('../../fields/types/localimage/LocalImageFilter'),
 	localfiles:       require('../../fields/types/localfiles/LocalFilesFilter'),
 	location:         require('../../fields/types/location/LocationFilter'),
 	markdown:         require('../../fields/types/markdown/MarkdownFilter'),
