@@ -2,8 +2,11 @@ import Field from '../Field';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button, FormField, FormInput, FormNote } from 'elemental';
+import urlUtils from 'url';
 
 module.exports = Field.create({
+
+	displayName: 'LocalImage',
 
 	shouldCollapse () {
 		return this.props.collapse && !this.hasExisting();
@@ -83,7 +86,7 @@ module.exports = Field.create({
 	},
 
 	hasFile () {
-		return this.hasExisting() || this.hasLocal();
+		return this.hasExisting();
 	},
 
 	hasExisting () {
@@ -91,11 +94,7 @@ module.exports = Field.create({
 	},
 
 	getFilename () {
-		if (this.hasLocal()) {
-			return this.fileFieldNode().value.split('\\').pop();
-		} else {
-			return this.props.value.filename;
-		}
+		return 'TODO getFileName';
 	},
 
 	renderFileDetails  (add) {
@@ -103,16 +102,20 @@ module.exports = Field.create({
 
 		if (this.hasFile() && !this.state.removeExisting) {
 			values = (
-				<div className="file-values">
-					<FormInput noedit>{this.getFilename()}</FormInput>
+				<div className="image-values">
+					<FormInput noedit className="image-value">{this.props.value.width} x {this.props.value.height}</FormInput>
+					<FormInput noedit className="image-value">{this.getImageSource()}</FormInput>
+					{add}
 				</div>
 			);
 		}
 
 		return (
-			<div key={this.props.path + '_details'} className="file-details">
-				{values}
-				{add}
+			<div key={this.props.path + '_details'} className="image-details">
+				<div className="image-container">
+					{this.renderImagePreview()}
+					{values}
+				</div>
 			</div>
 		);
 	},
@@ -180,7 +183,7 @@ module.exports = Field.create({
 			<div key={this.props.path + '_toolbar'} className="file-toolbar">
 				<div className="u-float-left">
 					<Button onClick={this.changeFile}>
-						{this.hasFile() ? 'Change' : 'Upload'} File
+						{this.hasFile() ? 'Change' : 'Upload'} Image
 					</Button>
 					{this.hasFile() && this.renderClearButton()}
 				</div>
@@ -193,6 +196,35 @@ module.exports = Field.create({
 
 		return <FormNote note={this.props.note} />;
 	},
+
+
+
+	getImageSource () {
+		var value = this.props.value;
+		return urlUtils.resolve(value.path, value.filename);
+	},
+
+
+	/**
+	 * Render an image preview
+	 */
+	renderImagePreview () {
+		console.log('renderImagePreview ', this.props)
+		if (!this.hasExisting()) return <span>No image</span>;
+		var value = this.props.value;
+		return (
+			<div className="img-thumbnail">
+				<a href={this.getImageSource()} target="_blank">
+					<img key={this.props.path + '_preview_thumbnail'}
+					     className="img-load"
+					     style={ { height: '90' } }
+					     src={this.getImageSource()}
+					     title={Math.round(value.size / 1024) + ' Kb'} />
+				</a>
+			</div>
+		);
+	},
+
 
 	renderUI () {
 		var container = [];
