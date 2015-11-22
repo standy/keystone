@@ -63,11 +63,13 @@ List.prototype.expandColumns = function (input) {
 			console.warn('Invalid Column specified:', i);
 			return;
 		}
+		var width = split[1];
 		return {
 			field: field,
 			type: field.type,
 			label: field.label,
-			path: field.path
+			path: field.path,
+			width: width
 		};
 	}).filter(i => i);
 	if (!nameIncluded) {
