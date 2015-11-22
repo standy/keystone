@@ -44,6 +44,7 @@
     "grappling-hook": "^3.0.0",
     "history": "^1.13.0",
     "i": "^0.3.3",
+    "image-size": "^0.3.5",
     "jade": "^1.11.0",
     "jquery": "^2.1.4",
     "keystone-utils": "^0.3.0",

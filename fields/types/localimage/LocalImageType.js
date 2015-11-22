@@ -9,7 +9,8 @@ var fs = require('fs-extra'),
 	grappling = require('grappling-hook'),
 	util = require('util'),
 	utils = require('keystone-utils'),
-	super_ = require('../Type');
+	super_ = require('../Type'),
+	imgSize = require('image-size');
 
 /**
  * localimage FieldType Constructor
@@ -43,6 +44,12 @@ function localimage(list, path, options) {
 		throw new Error('Invalid Configuration\n\n' +
 			'localimage fields (' + list.key + '.' + path + ') require the "dest" option to be set.');
 	}
+
+	this.destRoot = options.destRoot || '';
+	this.host = options.host || '';
+
+	this._properties = ['destRoot', 'host'];
+
 	// Allow hook into before and after
 	if (options.pre && options.pre.move) {
 		this.pre('move', options.pre.move);
@@ -79,6 +86,8 @@ localimage.prototype.addToSchema = function() {
 		originalname:		this._path.append('.originalname'),
 		path:			this._path.append('.path'),
 		size:			this._path.append('.size'),
+		width:			this._path.append('.width'),
+		height:			this._path.append('.height'),
 		filetype:		this._path.append('.filetype'),
 		// virtuals
 		exists:			this._path.append('.exists'),
@@ -92,7 +101,9 @@ localimage.prototype.addToSchema = function() {
 		originalname:   String,
 		path:			String,
 		size:			Number,
-		filetype:		String
+		filetype:		String,
+		width:          Number,
+		height:         Number
 	});
 
 	schema.add(schemaPaths);
@@ -270,16 +281,21 @@ localimage.prototype.uploadFile = function(item, file, update, callback) {
 			filename = field.options.filename(item, file);
 		}
 
-		fs.move(file.path, path.join(field.options.dest, filename), { clobber: field.options.overwrite }, function(err) {
+		var filePath = path.join(field.options.destRoot, field.options.dest, filename);
+		fs.move(file.path, filePath, { clobber: field.options.overwrite }, function(err) {
 
 			if (err) return callback(err);
+
+			var img = imgSize(filePath);
 
 			var fileData = {
 				filename: filename,
 				originalname: file.originalname,
 				path: field.options.dest,
 				size: file.size,
-				filetype: filetype
+				filetype: filetype,
+				width: img.width,
+				height: img.height
 			};
 
 			if (update) {
