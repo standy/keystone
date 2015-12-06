@@ -201,7 +201,16 @@ module.exports = Field.create({
 	},
 
 	renderImagePreviewThumbnail () {
-		return <img key={this.props.path + '_preview_thumbnail'} className="img-load" style={ { height: '90' } } src={this.getImageSource()} />;
+		var url = this.getImageURL();
+
+		if (url) {
+			// add cloudinary thumbnail parameters to the url
+			url = url.replace(/image\/upload/, 'image/upload/c_thumb,g_face,h_90,w_90');
+		} else {
+			url = this.getImageSource();
+		}
+
+		return <img key={this.props.path + '_preview_thumbnail'} className="img-load" style={ { height: '90' } } src={url} />;
 	},
 
 	/**
@@ -313,7 +322,7 @@ module.exports = Field.create({
 	renderImageSelect () {
 		var selectPrefix = this.props.selectPrefix;
 		var getOptions = function(input, callback) {
-			$.get('/keystone/api/cloudinary/autocomplete', {
+			$.get(this.props.adminPath + '/api/cloudinary/autocomplete', {
 				dataType: 'json',
 				data: {
 					q: input
