@@ -27,7 +27,9 @@ const TABLE_CONTROL_COLUMN_WIDTH = 26;  // icon + padding
 const ListView = React.createClass({
 	getInitialState () {
 		return {
-			confirmationDialog: null,
+			confirmationDialog: {
+				isOpen: false
+			},
 			checkedItems: {},
 			constrainTableWidth: true,
 			manageMode: false,
@@ -114,20 +116,18 @@ const ListView = React.createClass({
 		let itemCount = plural(checkedItems, ('* ' + list.singular.toLowerCase()), ('* ' + list.plural.toLowerCase()));
 		let itemIds = Object.keys(checkedItems);
 
-        const confirmationDialog = (
-            <ConfirmationDialog
-                body={`Are you sure you want to delete ${itemCount}?<br /><br />This cannot be undone.`}
-                confirmationLabel="Delete"
-                onCancel={this.removeConfirmationDialog}
-                onConfirmation={() => {
-                    CurrentListStore.deleteItems(itemIds);
-                    this.toggleManageMode();
-                    this.removeConfirmationDialog();
-                }}
-            />
-        );
-
-        this.setState({ confirmationDialog });
+		this.setState({
+			confirmationDialog: {
+				isOpen: true,
+				label: 'Delete',
+				body: `Are you sure you want to delete ${itemCount}?<br /><br />This cannot be undone.`,
+				onConfirmation: () => {
+					CurrentListStore.deleteItems(itemIds);
+					this.toggleManageMode();
+					this.removeConfirmationDialog();
+				}
+			}
+		});
 	},
 	handleManagementSelect (selection) {
 		if (selection === 'all') this.checkAllTableItems();
@@ -166,6 +166,19 @@ const ListView = React.createClass({
 					</span>
 				</Button>
 			</InputGroup.Section>
+		);
+	},
+	renderConfirmationDialog () {
+		const props = this.state.confirmationDialog;
+
+		return (
+			<ConfirmationDialog
+				isOpen={props.isOpen}
+				body={props.body}
+				confirmationLabel={props.label}
+				onCancel={this.removeConfirmationDialog}
+				onConfirmation={props.onConfirmation}
+			/>
 		);
 	},
 	renderManagement () {
@@ -278,7 +291,7 @@ const ListView = React.createClass({
 						</InputGroup.Section>
 						{this.renderCreateButton()}
 					</InputGroup>
-					<ListFilters adminPath={this.props.adminPath} />
+					<ListFilters />
 					<div style={{ height: 34, marginBottom: '2em' }}>
 						{this.renderManagement()}
 						{this.renderPagination()}
@@ -325,24 +338,25 @@ const ListView = React.createClass({
 			return CurrentListStore.deleteItem(item.id);
 		}
 
-		const confirmationDialog = (
-			<ConfirmationDialog
-				body={`Are you sure you want to delete <strong>${item.name}</strong>?<br /><br />This cannot be undone.`}
-				confirmationLabel="Delete"
-				onCancel={this.removeConfirmationDialog}
-				onConfirmation={() => {
+		e.preventDefault();
+
+		this.setState({
+			confirmationDialog: {
+				isOpen: true,
+				label: 'Delete',
+				body: `Are you sure you want to delete <strong>${item.name}</strong>?<br /><br />This cannot be undone.`,
+				onConfirmation: () => {
 					CurrentListStore.deleteItem(item.id);
 					this.removeConfirmationDialog();
-				}}
-			/>
-		);
-
-		e.preventDefault();
-		this.setState({ confirmationDialog });
+				}
+			}
+		});
 	},
 	removeConfirmationDialog () {
 		this.setState({
-			confirmationDialog: null
+			confirmationDialog: {
+				isOpen: false
+			}
 		});
 	},
 	toggleTableWidth () {
@@ -382,7 +396,7 @@ const ListView = React.createClass({
 		});
 		var cells = this.state.columns.map((col, i) => {
 			var ColumnType = Columns[col.type] || Columns.__unrecognised__;
-			var linkTo = !i ? `${this.props.adminPath}/${this.state.list.path}/${itemId}` : undefined;
+			var linkTo = !i ? `${Keystone.adminPath}/${this.state.list.path}/${itemId}` : undefined;
 			return <ColumnType key={col.path} list={this.state.list} col={col} data={item} linkTo={linkTo} />;
 		});
 		// add sortable icon when applicable
@@ -495,7 +509,6 @@ const ListView = React.createClass({
 			<div className="keystone-wrapper">
 				<header className="keystone-header">
 					<MobileNavigation
-						adminPath={this.props.adminPath}
 						brand={this.props.brand}
 						currentListKey={this.state.list.path}
 						currentSectionKey={this.props.nav.currentSection.key}
@@ -503,13 +516,11 @@ const ListView = React.createClass({
 						signoutUrl={this.props.signoutUrl}
 						/>
 					<PrimaryNavigation
-						adminPath={this.props.adminPath}
 						brand={this.props.brand}
 						currentSectionKey={this.props.nav.currentSection.key}
 						sections={this.props.nav.sections}
 						signoutUrl={this.props.signoutUrl} />
 					<SecondaryNavigation
-						adminPath={this.props.adminPath}
 						currentListKey={this.state.list.path}
 						lists={this.props.nav.currentSection.lists} />
 				</header>
@@ -519,26 +530,23 @@ const ListView = React.createClass({
 				</div>
 				<Footer
 					appversion={this.props.appversion}
-					adminPath={this.props.adminPath}
 					backUrl={this.props.backUrl}
 					brand={this.props.brand}
 					User={this.props.User}
 					user={this.props.user}
 					version={this.props.version} />
 				<CreateForm
-					adminPath={this.props.adminPath}
 					err={this.props.createFormErrors}
 					isOpen={this.state.showCreateForm}
 					list={this.state.list}
 					onCancel={() => this.toggleCreateModal(false)}
 					values={this.props.createFormData} />
 				<UpdateForm
-					adminPath={this.props.adminPath}
 					isOpen={this.state.showUpdateForm}
 					itemIds={Object.keys(this.state.checkedItems)}
 					list={this.state.list}
 					onCancel={() => this.toggleUpdateModal(false)} />
-				{this.state.confirmationDialog}
+				{this.renderConfirmationDialog()}
 			</div>
 		);
 	}
@@ -548,7 +556,6 @@ const ListView = React.createClass({
 ReactDOM.render(
 	<ListView
 		appversion={Keystone.appversion}
-		adminPath={Keystone.adminPath}
 		backUrl={Keystone.backUrl}
 		brand={Keystone.brand}
 		createFormData={Keystone.createFormData}

@@ -19,7 +19,6 @@ const ICON_EXTS = [
 
 var LocalFilesFieldItem = React.createClass({
 	propTypes: {
-		adminPath: React.PropTypes.string,
 		deleted: React.PropTypes.bool,
 		filename: React.PropTypes.string,
 		isQueued: React.PropTypes.bool,
@@ -45,7 +44,6 @@ var LocalFilesFieldItem = React.createClass({
 		if (_.contains(ICON_EXTS, ext)) iconName = ext;
 
 		let note;
-
 		if (this.props.deleted) {
 			note = <FormInput key="delete-note" noedit className="field-type-localfiles__note field-type-localfiles__note--delete">save to delete</FormInput>;
 		} else if (this.props.isQueued) {
@@ -54,7 +52,7 @@ var LocalFilesFieldItem = React.createClass({
 
 		return (
 			<FormField>
-				<img key="file-type-icon" className="file-icon" src={this.props.adminPath + '/images/icons/32/' + iconName + '.png'} />
+				<img key="file-type-icon" className="file-icon" src={Keystone.adminPath + '/images/icons/32/' + iconName + '.png'} />
 				<FormInput key="file-name" noedit className="field-type-localfiles__filename">
 					{filename}
 					{this.props.size ? ' (' + bytes(this.props.size) + ')' : null}
@@ -80,15 +78,15 @@ module.exports = Field.create({
 		return { items: items };
 	},
 
-	removeItem (i) {
-		var thumbs = this.state.items;
-		var thumb = thumbs[i];
-
-		if (thumb.props.isQueued) {
-			thumbs[i] = null;
-		} else {
-			thumb.props.deleted = !thumb.props.deleted;
-		}
+	removeItem (id) {
+		var thumbs = [];
+		var self = this;
+		_.each(this.state.items, function (thumb) {
+			if (thumb.props._id === id) {
+				thumb.props.deleted = !thumb.props.deleted;
+			}
+			self.pushItem(thumb.props, thumbs);
+		});
 
 		this.setState({ items: thumbs });
 	},
@@ -96,10 +94,10 @@ module.exports = Field.create({
 	pushItem (args, thumbs) {
 		thumbs = thumbs || this.state.items;
 		var i = thumbs.length;
-		args.toggleDelete = this.removeItem.bind(this, i);
+		args.toggleDelete = this.removeItem.bind(this, args._id);
 		args.shouldRenderActionButton = this.shouldRenderField();
-		args.adminPath = this.props.adminPath;
-		thumbs.push(<LocalFilesFieldItem key={i} {...args} />);
+		args.adminPath = Keystone.adminPath;
+		thumbs.push(<LocalFilesFieldItem key={args._id} {...args} />);
 	},
 
 	fileFieldNode () {
