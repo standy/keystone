@@ -85,7 +85,7 @@ const ListView = React.createClass({
 	handleSearchClear () {
 		CurrentListStore.setActiveSearch('');
 		this.setState({ searchString: '' });
-		React.findDOMNode(this.refs.listSearchInput).focus();
+		ReactDOM.findDOMNode(this.refs.listSearchInput).focus();
 	},
 	handleSearchKey (e) {
 		// clear on esc
@@ -148,6 +148,7 @@ const ListView = React.createClass({
 		);
 	},
 	renderCreateButton () {
+		if (this.state.list.nocreate) return null;
 		var props = { type: 'success' };
 		if (this.state.list.autocreate) {
 			props.href = '?new' + Keystone.csrf.query;
