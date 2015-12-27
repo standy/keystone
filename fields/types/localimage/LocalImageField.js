@@ -201,7 +201,7 @@ module.exports = Field.create({
 
 	getImageSource () {
 		var value = this.props.value;
-		return urlUtils.resolve(value.path, value.filename);
+		return urlUtils.resolve(this.props.host || '', value.path + value.filename);
 	},
 
 
@@ -209,7 +209,6 @@ module.exports = Field.create({
 	 * Render an image preview
 	 */
 	renderImagePreview () {
-		console.log('renderImagePreview ', this.props)
 		if (!this.hasExisting()) return <span>No image</span>;
 		var value = this.props.value;
 		return (
