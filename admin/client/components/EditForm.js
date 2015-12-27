@@ -8,6 +8,9 @@ import FooterBar from './FooterBar';
 import InvalidFieldType from './InvalidFieldType';
 import { Button, Col, Form, FormField, FormInput, ResponsiveText, Row } from 'elemental';
 
+const DATE_FORMAT = 'DD.MM.YYYY h:mm:ssa';
+const FULL_DATE_FORMAT = 'Do MMM YYYY [at] H:mm:ss';
+
 var EditForm = React.createClass({
 	displayName: 'EditForm',
 	propTypes: {
@@ -199,7 +202,7 @@ var EditForm = React.createClass({
 			if (data.createdAt) {
 				elements.push(
 					<FormField key="createdAt" label="Created on">
-						<FormInput noedit title={moment(data.createdAt).format('DD/MM/YYYY h:mm:ssa')}>{moment(data.createdAt).format('Do MMM YYYY')}</FormInput>
+						<FormInput noedit title={moment(data.createdAt).format(DATE_FORMAT)}>{moment(data.createdAt).format(FULL_DATE_FORMAT)}</FormInput>
 					</FormField>
 				);
 			}
@@ -222,7 +225,7 @@ var EditForm = React.createClass({
 			if (data.updatedAt && (!data.createdAt || data.createdAt !== data.updatedAt)) {
 				elements.push(
 					<FormField key="updatedAt" label="Updated on">
-						<FormInput noedit title={moment(data.updatedAt).format('DD/MM/YYYY h:mm:ssa')}>{moment(data.updatedAt).format('Do MMM YYYY')}</FormInput>
+						<FormInput noedit title={moment(data.updatedAt).format(DATE_FORMAT)}>{moment(data.updatedAt).format(FULL_DATE_FORMAT)}</FormInput>
 					</FormField>
 				);
 			}
