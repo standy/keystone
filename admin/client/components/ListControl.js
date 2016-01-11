@@ -4,6 +4,7 @@ import classnames from 'classnames';
 var ListControl = React.createClass({
 
 	propTypes: {
+		dragSource: React.PropTypes.func,
 		onClick: React.PropTypes.func,
 		type: React.PropTypes.oneOf(['check', 'delete', 'sortable']).isRequired
 	},
@@ -14,22 +15,31 @@ var ListControl = React.createClass({
 			'is-active': this.props.active
 		});
 		var tabindex = this.props.type === 'sortable' ? -1 : null;
+		var title;
 
 		if (this.props.type === 'check') {
 			icon += 'check';
+			title = 'Check';
 		}
 		if (this.props.type === 'delete') {
 			icon += 'trashcan';
+			title = 'Delete';
 		}
 		if (this.props.type === 'sortable') {
 			icon += 'three-bars';
+			title = 'Change sortorder of';
 		}
 
-		return (
+		var renderButton = (
 			<button type="button" onClick={this.props.onClick} className={className} tabIndex={tabindex}>
 				<span className={icon} />
 			</button>
 		);
+		if(this.props.dragSource) {
+			return this.props.dragSource(renderButton);
+		} else {
+			return renderButton;
+		}
 	},
 
 	render () {
