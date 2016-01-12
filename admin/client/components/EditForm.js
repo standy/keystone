@@ -45,6 +45,7 @@ var EditForm = React.createClass({
 				confirmationLabel="Reset"
 				onCancel={this.removeConfirmationDialog}
 				onConfirmation={this.handleReset}
+				isOpen={true}
 			/>
 		);
 
@@ -64,6 +65,7 @@ var EditForm = React.createClass({
 				confirmationLabel="Delete"
 				onCancel={this.removeConfirmationDialog}
 				onConfirmation={this.handleDelete}
+				isOpen={true}
 			/>
 		);
 
