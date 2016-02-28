@@ -20,7 +20,7 @@ var EditForm = React.createClass({
 	getInitialState () {
 		return {
 			values: Object.assign({}, this.props.data.fields),
-			confirmationDialog: null
+			confirmationDialog: null,
 		};
 	},
 	getFieldProps (field) {
@@ -37,7 +37,6 @@ var EditForm = React.createClass({
 		values[event.path] = event.value;
 		this.setState({ values });
 	},
-
 	confirmReset(event) {
 		const confirmationDialog = (
 			<ConfirmationDialog
@@ -48,16 +47,12 @@ var EditForm = React.createClass({
 				isOpen={true}
 			/>
 		);
-
 		event.preventDefault();
-
 		this.setState({ confirmationDialog });
 	},
-
 	handleReset () {
 		window.location.reload();
 	},
-
 	confirmDelete() {
 		const confirmationDialog = (
 			<ConfirmationDialog
@@ -68,10 +63,8 @@ var EditForm = React.createClass({
 				isOpen={true}
 			/>
 		);
-
 		this.setState({ confirmationDialog });
 	},
-
 	handleDelete () {
 		let { data, list } = this.props;
 		list.deleteItem(data.id, err => {
@@ -83,13 +76,11 @@ var EditForm = React.createClass({
 			top.location.href = `${Keystone.adminPath}/${list.path}`;
 		});
 	},
-
 	removeConfirmationDialog () {
 		this.setState({
-			confirmationDialog: null
+			confirmationDialog: null,
 		});
 	},
-
 	renderKeyOrId () {
 		var className = 'EditForm__key-or-id';
 		var list = this.props.list;
@@ -113,7 +104,6 @@ var EditForm = React.createClass({
 			);
 		}
 	},
-
 	renderNameField () {
 		var nameField = this.props.list.nameField;
 		var nameIsEditable = this.props.list.nameIsEditable;
@@ -140,7 +130,6 @@ var EditForm = React.createClass({
 			);
 		}
 	},
-
 	renderFormElements () {
 		var headings = 0;
 
@@ -169,7 +158,6 @@ var EditForm = React.createClass({
 			}
 		}, this);
 	},
-
 	renderFooterBar () {
 		var buttons = [
 			<Button key="save" type="primary" submit>Save</Button>
@@ -192,7 +180,6 @@ var EditForm = React.createClass({
 			</FooterBar>
 		);
 	},
-
 	renderTrackingMeta () {
 		if (!this.props.list.tracking) return null;
 
@@ -251,7 +238,6 @@ var EditForm = React.createClass({
 			</div>
 		) : null;
 	},
-
 	render () {
 		return (
 			<form method="post" encType="multipart/form-data" className="EditForm-container">
@@ -272,8 +258,7 @@ var EditForm = React.createClass({
 				{this.state.confirmationDialog}
 			</form>
 		);
-	}
-
+	},
 });
 
 module.exports = EditForm;
