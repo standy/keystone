@@ -61,8 +61,25 @@
 	width: 100%;
 }
 
+// relationships
+
+.Relationships {
+	background-color: rgba(0, 0, 0, 0.02);
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+	padding-bottom: 1px; // fix bg paint - force inclusion of margin from .Table
+	padding-top: 2em;
+
+	@media (min-width: @screen-sm) {
+		padding-top: 60px;
+	}
+}
+
 .Relationship {
-	margin-bottom: 30px;
+	margin-top: 30px;
+}
+
+.Relationship__noresults {
+	color: #999;
 }
 
 
@@ -200,7 +217,8 @@
 .ItemList__value--key,
 .ItemList__value--html,
 .ItemList__value--htmlWYSIWYG,
-.ItemList__value--id {
+.ItemList__value--id,
+.ItemList__value--monospace {
 	font-family: @font-family-monospace;
 }
 
@@ -260,3 +278,4 @@
 
 @import "./list-controls";
 @import "./list-filters";
+@import "./list-sort";

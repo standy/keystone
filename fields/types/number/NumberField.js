@@ -21,7 +21,8 @@ module.exports = Field.create({
 				value={this.props.value}
 				onChange={this.valueChanged}
 				autoComplete="off"
+				type="number"
 			/>
 		);
-	}
+	},
 });

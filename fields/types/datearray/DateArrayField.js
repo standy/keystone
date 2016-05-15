@@ -2,6 +2,7 @@ import ArrayFieldMixin from '../../mixins/ArrayField';
 import DateInput from '../../components/DateInput';
 import Field from '../Field';
 import React from 'react';
+import moment from 'moment';
 
 const DEFAULT_INPUT_FORMAT = 'YYYY-MM-DD';
 const DEFAULT_FORMAT_STRING = 'Do MMM YYYY';
@@ -25,12 +26,12 @@ module.exports = Field.create({
 
 	processInputValue (value) {
 		if (!value) return;
-		let m = moment(value);
+		const m = moment(value);
 		return m.isValid() ? m.format(this.props.inputFormat) : value;
 	},
 
 	formatValue (value) {
-		return value ? this.moment(value).format(this.props.formatString) : '';
+		return value ? moment(value).format(this.props.formatString) : '';
 	},
 
 	getInputComponent () {

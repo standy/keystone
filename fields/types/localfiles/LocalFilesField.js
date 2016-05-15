@@ -1,20 +1,15 @@
-import _ from 'underscore';
+import _ from 'lodash';
 import bytes from 'bytes';
 import Field from '../Field';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button, FormField, FormInput, FormNote } from 'elemental';
 
-/**
- * TODO:
- * - Remove dependency on underscore
- */
-
 const ICON_EXTS = [
 	'aac', 'ai', 'aiff', 'avi', 'bmp', 'c', 'cpp', 'css', 'dat', 'dmg', 'doc', 'dotx', 'dwg', 'dxf', 'eps', 'exe', 'flv', 'gif', 'h',
 	'hpp', 'html', 'ics', 'iso', 'java', 'jpg', 'js', 'key', 'less', 'mid', 'mp3', 'mp4', 'mpg', 'odf', 'ods', 'odt', 'otp', 'ots',
 	'ott', 'pdf', 'php', 'png', 'ppt', 'psd', 'py', 'qt', 'rar', 'rb', 'rtf', 'sass', 'scss', 'sql', 'tga', 'tgz', 'tiff', 'txt',
-	'wav', 'xls', 'xlsx', 'xml', 'yml', 'zip'
+	'wav', 'xls', 'xlsx', 'xml', 'yml', 'zip',
 ];
 
 var LocalFilesFieldItem = React.createClass({
@@ -22,7 +17,6 @@ var LocalFilesFieldItem = React.createClass({
 		deleted: React.PropTypes.bool,
 		filename: React.PropTypes.string,
 		isQueued: React.PropTypes.bool,
-		key: React.PropTypes.number,
 		size: React.PropTypes.number,
 		toggleDelete: React.PropTypes.func,
 	},
@@ -37,11 +31,11 @@ var LocalFilesFieldItem = React.createClass({
 	},
 
 	render () {
-		let { filename } = this.props;
-		let ext = filename.split('.').pop();
+		const { filename } = this.props;
+		const ext = filename.split('.').pop();
 
 		let iconName = '_blank';
-		if (_.contains(ICON_EXTS, ext)) iconName = ext;
+		if (_.includes(ICON_EXTS, ext)) iconName = ext;
 
 		let note;
 		if (this.props.deleted) {
@@ -61,9 +55,11 @@ var LocalFilesFieldItem = React.createClass({
 				{this.renderActionButton()}
 			</FormField>
 		);
-	}
+	},
 
 });
+
+var tempId = 0;
 
 module.exports = Field.create({
 
@@ -71,7 +67,7 @@ module.exports = Field.create({
 		var items = [];
 		var self = this;
 
-		_.each(this.props.value, function (item) {
+		_.forEach(this.props.value, function (item) {
 			self.pushItem(item, items);
 		});
 
@@ -81,11 +77,12 @@ module.exports = Field.create({
 	removeItem (id) {
 		var thumbs = [];
 		var self = this;
-		_.each(this.state.items, function (thumb) {
+		_.forEach(this.state.items, function (thumb) {
+			var newProps = Object.assign({}, thumb.props);
 			if (thumb.props._id === id) {
-				thumb.props.deleted = !thumb.props.deleted;
+				newProps.deleted = !thumb.props.deleted;
 			}
-			self.pushItem(thumb.props, thumbs);
+			self.pushItem(newProps, thumbs);
 		});
 
 		this.setState({ items: thumbs });
@@ -93,11 +90,10 @@ module.exports = Field.create({
 
 	pushItem (args, thumbs) {
 		thumbs = thumbs || this.state.items;
-		var i = thumbs.length;
 		args.toggleDelete = this.removeItem.bind(this, args._id);
 		args.shouldRenderActionButton = this.shouldRenderField();
 		args.adminPath = Keystone.adminPath;
-		thumbs.push(<LocalFilesFieldItem key={args._id} {...args} />);
+		thumbs.push(<LocalFilesFieldItem key={args._id || tempId++} {...args} />);
 	},
 
 	fileFieldNode () {
@@ -114,7 +110,7 @@ module.exports = Field.create({
 		this.setState({
 			items: this.state.items.filter(function (thumb) {
 				return !thumb.props.isQueued;
-			})
+			}),
 		});
 	},
 
@@ -122,7 +118,7 @@ module.exports = Field.create({
 		var self = this;
 
 		var files = event.target.files;
-		_.each(files, function (f) {
+		_.forEach(files, function (f) {
 			self.pushItem({ isQueued: true, filename: f.name });
 			self.forceUpdate();
 		});
@@ -180,7 +176,7 @@ module.exports = Field.create({
 	renderFieldAction () {
 		var value = '';
 		var remove = [];
-		_.each(this.state.items, function (thumb) {
+		_.forEach(this.state.items, function (thumb) {
 			if (thumb && thumb.props.deleted) remove.push(thumb.props._id);
 		});
 		if (remove.length) value = 'delete:' + remove.join(',');
@@ -192,7 +188,7 @@ module.exports = Field.create({
 		return <input ref="uploads" className="field-uploads" type="hidden" name={this.props.paths.uploads} />;
 	},
 
-	renderNote: function() {
+	renderNote: function () {
 		if (!this.props.note) return null;
 		return <FormNote note={this.props.note} />;
 	},
@@ -208,5 +204,5 @@ module.exports = Field.create({
 				{this.renderNote()}
 			</FormField>
 		);
-	}
+	},
 });

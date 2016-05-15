@@ -1,9 +1,11 @@
 var keystone = require('../../../');
 
-module.exports = function(req, res) {
+module.exports = function (req, res) {
 	keystone.render(req, res, 'signin', {
 		submitted: req.body,
 		from: req.query.from,
-		logo: keystone.get('signin logo')
+		redirect: keystone.get('signin redirect'),
+		logo: keystone.get('signin logo'),
 	});
+
 };

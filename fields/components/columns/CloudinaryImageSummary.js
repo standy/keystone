@@ -1,6 +1,4 @@
 import React from 'react';
-// import CloudinaryImage from 'react-cloudinary-img';
-import ItemsTableValue from '../../../admin/client/components/ItemsTableValue';
 
 const IMAGE_SIZE = 18;
 
@@ -22,28 +20,28 @@ const imageStyle = {
 	position: 'relative',
 
 	WebkitTransform: 'translateX(-50%)',
-	MozTransform:    'translateX(-50%)',
-	msTransform:     'translateX(-50%)',
-	transform:       'translateX(-50%)',
+	MozTransform: 'translateX(-50%)',
+	msTransform: 'translateX(-50%)',
+	transform: 'translateX(-50%)',
 };
 const textStyle = {
 	color: '#888',
 	display: 'inline-block',
 	fontSize: '.8rem',
 	marginLeft: 8,
-	verticalAlign: 'middle'
+	verticalAlign: 'middle',
 };
 
 var CloudinaryImageSummary = React.createClass({
 	displayName: 'CloudinaryImageSummary',
 	propTypes: {
-		label: React.PropTypes.oneOf(['dimensions', 'publicId']),
 		image: React.PropTypes.object.isRequired,
+		label: React.PropTypes.oneOf(['dimensions', 'publicId']),
 	},
 	renderLabel () {
 		if (!this.props.label) return;
 
-		let { label, image } = this.props;
+		const { label, image } = this.props;
 
 		let text;
 		if (label === 'dimensions') {
@@ -60,10 +58,8 @@ var CloudinaryImageSummary = React.createClass({
 	},
 	renderImageThumbnail () {
 		if (!this.props.image) return;
-
-		let url = this.props.image.url.replace(/image\/upload/, `image/upload/c_thumb,g_face,h_${IMAGE_SIZE},w_${IMAGE_SIZE}`);
-
-		return <img src={url} style={imageStyle} className="img-load" style={ { height: IMAGE_SIZE } } />;
+		const url = this.props.image.url.replace(/image\/upload/, `image/upload/c_thumb,g_face,h_${IMAGE_SIZE},w_${IMAGE_SIZE}`);
+		return <img src={url} style={imageStyle} className="img-load" />;
 	},
 	render () {
 		return (
@@ -74,7 +70,7 @@ var CloudinaryImageSummary = React.createClass({
 				{this.renderLabel()}
 			</span>
 		);
-	}
+	},
 });
 
 module.exports = CloudinaryImageSummary;

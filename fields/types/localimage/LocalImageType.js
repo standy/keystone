@@ -1,16 +1,12 @@
-/*!
- * Module dependencies.
- */
-
-var fs = require('fs-extra'),
-	path = require('path'),
-	_ = require('underscore'),
-	moment = require('moment'),
-	grappling = require('grappling-hook'),
-	util = require('util'),
-	utils = require('keystone-utils'),
-	super_ = require('../Type'),
-	imgSize = require('image-size');
+var _ = require('lodash');
+var FieldType = require('../Type');
+var fs = require('fs-extra');
+var grappling = require('grappling-hook');
+var moment = require('moment');
+var path = require('path');
+var util = require('util');
+var utils = require('keystone-utils');
+var imgSize = require('image-size');
 
 /**
  * localimage FieldType Constructor
@@ -60,14 +56,7 @@ function localimage(list, path, options) {
 	}
 
 }
-
-/*!
- * Inherit from Field
- */
-
-util.inherits(localimage, super_);
-
-
+util.inherits(localimage, FieldType);
 
 /**
  * Registers the field on the List's Mongoose Schema.
