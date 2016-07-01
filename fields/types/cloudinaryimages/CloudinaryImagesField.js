@@ -34,6 +34,21 @@ var Thumbnail = React.createClass({
 		width: React.PropTypes.number,
 	},
 
+	applyTransforms (url) {
+		var format = this.props.format;
+
+		if (format === 'pdf') {
+			// support cloudinary pdf previews in jpg format
+			url = url.substr(0, url.lastIndexOf('.')) + '.jpg';
+			url = url.replace(/image\/upload/, 'image/upload/c_thumb,h_90,w_90');
+		} else {
+			// add cloudinary thumbnail parameters to the url
+			url = url.replace(/image\/upload/, 'image/upload/c_thumb,g_face,h_90,w_90');
+		}
+
+		return url;
+	},
+
 	renderActionButton () {
 		if (!this.props.shouldRenderActionButton || this.props.isQueued) return null;
 		return <Button type={this.props.deleted ? 'link-text' : 'link-cancel'} block onClick={this.props.toggleDelete}>{this.props.deleted ? 'Undo' : 'Remove'}</Button>;
@@ -41,7 +56,7 @@ var Thumbnail = React.createClass({
 
 	render () {
 		let iconClassName;
-		const { deleted, height, isQueued, url, width, openLightbox } = this.props;
+		const { deleted, height, isQueued, url, width, openLightbox, format } = this.props;
 		const previewClassName = classnames('image-preview', {
 			action: (deleted || isQueued),
 		});
@@ -53,11 +68,14 @@ var Thumbnail = React.createClass({
 			iconClassName = classnames(iconClassQueued);
 		}
 
+		const shouldOpenLightbox = (format !== 'pdf');
+		let thumbUrl = this.applyTransforms(url);
+
 		return (
 			<div className="image-field image-sortable" title={title}>
 				<div className={previewClassName}>
-					<a href={url} onClick={openLightbox} className="img-thumbnail">
-						<img style={{ height: '90' }} className="img-load" src={url} />
+					<a href={url} onClick={shouldOpenLightbox ? openLightbox : null} className="img-thumbnail" target="_blank">
+						<img style={{ height: '90' }} className="img-load" src={thumbUrl} />
 						<span className={iconClassName} />
 					</a>
 				</div>
@@ -279,7 +297,7 @@ module.exports = Field.create({
 
 	renderUI () {
 		return (
-			<FormField label={this.props.label} className="field-type-cloudinaryimages">
+			<FormField label={this.props.label} className="field-type-cloudinaryimages" htmlFor={this.props.path}>
 				{this.renderFieldAction()}
 				{this.renderUploadsField()}
 				{this.renderFileField()}

@@ -1,18 +1,39 @@
+var BooleanList = require('./lists/boolean');
+var CloudinaryImageList = require('./lists/cloudinaryImage');
+var CloudinaryImageMultipleList = require('./lists/cloudinaryImageMultiple');
 var CodeList = require('./lists/code');
 var ColorList = require('./lists/color');
+var DateArrayList = require('./lists/dateArray');
 var DateList = require('./lists/date');
 var DatetimeList = require('./lists/datetime');
+var GeoPointList = require('./lists/geoPoint');
+var EmailList = require('./lists/email');
 var HtmlList = require('./lists/html');
 var KeyList = require('./lists/key');
+var LocalFileList = require('./lists/localFile');
+var LocalFileMultipleList = require('./lists/localFileMultiple');
 var LocationList = require('./lists/location');
 var MarkdownList = require('./lists/markdown');
+var MoneyList = require('./lists/money');
 var NameList = require('./lists/name');
+var NumberArrayList = require('./lists/numberArray');
+var NumberList = require('./lists/number');
 var PasswordList = require('./lists/password');
+var RelationshipList = require('./lists/relationship');
 var SelectList = require('./lists/select');
-var TextList = require('./lists/text');
 var TextareaList = require('./lists/textarea');
+var TextArrayList = require('./lists/textArray');
+var TextList = require('./lists/text');
 var UrlList = require('./lists/url');
 var UserList = require('./lists/user');
+// MISC LISTS:
+var DependsOnList = require('./lists/misc/dependsOn');
+var HiddenRelationshipList = require('./lists/misc/hiddenRelationship');
+var InlineRelationshipList = require('./lists/misc/inlineRelationship');
+var ManyRelationshipList = require('./lists/misc/manyRelationship');
+var NoDefaultColumnList = require('./lists/misc/noDefaultColumns');
+var SourceRelationshipList = require('./lists/misc/sourceRelationship');
+var TargetRelationshipList = require('./lists/misc/targetRelationship');
 
 module.exports = {
 	sections: {
@@ -22,21 +43,44 @@ module.exports = {
 				//
 				// DEFINE ALL LISTS
 				//
+				booleanList: new BooleanList(),
+				cloudinaryimageList: new CloudinaryImageList(),
+				cloudinaryimagemultipleList: new CloudinaryImageMultipleList(),
 				codeList: new CodeList(),
 				colorList: new ColorList(),
+				datearrayList: new DateArrayList(),
 				dateList: new DateList(),
 				datetimeList: new DatetimeList(),
+				emailList: new EmailList(),
+				geopointList: new GeoPointList(),
 				htmlList: new HtmlList(),
 				keyList: new KeyList(),
+				localfileList: new LocalFileList(),
+				localfilemultipleList: new LocalFileMultipleList(),
 				locationList: new LocationList(),
 				markdownList: new MarkdownList(),
+				moneyList: new MoneyList(),
 				nameList: new NameList(),
+				numberarrayList: new NumberArrayList(),
+				numberList: new NumberList(),
 				passwordList: new PasswordList(),
+				relationshipList: new RelationshipList(),
 				selectList: new SelectList(),
-				textList: new TextList(),
 				textareaList: new TextareaList(),
+				textarrayList: new TextArrayList(),
+				textList: new TextList(),
 				urlList: new UrlList(),
 				userList: new UserList(),
+				//
+				// MISC LISTS
+				//
+				dependsonList: new DependsOnList(),
+				hiddenrelationshipList: new HiddenRelationshipList(),
+				inlinerelationshipList: new InlineRelationshipList(),
+				manyrelationshipList: new ManyRelationshipList(),
+				nodefaultcolumnList: new NoDefaultColumnList(),
+				sourcerelationshipList: new SourceRelationshipList(),
+				targetrelationshipList: new TargetRelationshipList(),
 			},
 			elements: {
 				//
@@ -98,6 +142,7 @@ module.exports = {
 		resetButtonText: '.EditForm-container button[class="Button Button--link-cancel"] span',
 		deleteButton: '.EditForm-container button[class="Button Button--link-delete u-float-right"]',
 		deleteButtonText: '.EditForm-container button[class="Button Button--link-delete u-float-right"] span',
+		firstRelationshipItemLink: 'div.Relationships > div > div > div > table > tbody > tr > td > a',
 	},
 	commands: [{
 		//
@@ -109,10 +154,14 @@ module.exports = {
 			var form = this.section.form;
 			config.fields.forEach( function(field) {
 				var task = form.section[list].section[field]
-					.verifyUI(config.args);
+					.assertUI(config.args);
 				tasks.push(task);
 			});
 			return tasks;
+		},
+		back: function() {
+			return this
+				.click('listBreadcrumb');
 		},
 		new: function() {
 			return this
@@ -161,6 +210,10 @@ module.exports = {
 		assertFlashError: function (message) {
 			return this.expect.element('@flashError')
 				.text.to.equal(message);
+		},
+		navitageToFirstRelationship: function() {
+			return this
+				.click('@firstRelationshipItemLink');
 		},
 	}],
 };

@@ -8,10 +8,10 @@ module.exports = function ColorType(config) {
 			value: 'input[name="' + config.fieldName + '"]',
       button: '.field-type-color__button',
       swatch: '.field-type-color__swatch',
-      picker: '.field-type-color__picker',
+      picker: '.field-type-color__swatch',
 		},
 		commands: [{
-			verifyUI: function() {
+			assertUI: function() {
 				this
 					.expect.element('@label').to.be.visible;
 				this

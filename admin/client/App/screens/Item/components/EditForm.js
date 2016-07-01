@@ -11,10 +11,10 @@ import {
 	Row,
 	Spinner,
 } from 'elemental';
+import { Fields } from 'FieldTypes';
 
 import AlertMessages from '../../../shared/AlertMessages';
 import ConfirmationDialog from './../../../shared/ConfirmationDialog';
-import Fields from 'FieldTypes';
 
 import FormHeading from './FormHeading';
 import AltText from './AltText';
@@ -167,15 +167,19 @@ var EditForm = React.createClass({
 			return (
 				<div className={className}>
 					<AltText
-						normal={`${upcase(list.autokey.path)}: `}
-						modified="ID:"
 						component="span"
+						modifiedLabel="ID:"
+						modifiedValue={null}
+						normalLabel={`${upcase(list.autokey.path)}: `}
+						normalValue={null}
 						title="Press <alt> to reveal the ID"
 						className="EditForm__key-or-id__label" />
 					<AltText
-						normal={<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data[list.autokey.path]} className="EditForm__key-or-id__input" readOnly />}
-						modified={<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data.id} className="EditForm__key-or-id__input" readOnly />}
 						component="span"
+						modifiedLabel=""
+						modifiedValue={<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data.id} className="EditForm__key-or-id__input" readOnly />}
+						normalLabel={null}
+						normalValue={<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data[list.autokey.path]} className="EditForm__key-or-id__input" readOnly />}
 						title="Press <alt> to reveal the ID"
 						className="EditForm__key-or-id__field" />
 				</div>
@@ -356,9 +360,9 @@ var EditForm = React.createClass({
 	render () {
 		return (
 			<form ref="editForm" method="post" encType="multipart/form-data" className="EditForm-container">
+				{(this.state.alerts) ? <AlertMessages alerts={this.state.alerts} /> : null}
 				<Row>
 					<Col lg="3/4">
-						{(this.state.alerts) ? <AlertMessages alerts={this.state.alerts} /> : null}
 						<Form type="horizontal" className="EditForm" component="div">
 							<input type="hidden" name="action" value="updateItem" />
 							<input type="hidden" name={Keystone.csrf.key} value={Keystone.csrf.value} />
