@@ -6,8 +6,6 @@ import urlUtils from 'url';
 
 module.exports = Field.create({
 
-	displayName: 'LocalImage',
-
 	shouldCollapse () {
 		return this.props.collapse && !this.hasExisting();
 	},
@@ -40,22 +38,22 @@ module.exports = Field.create({
 		this.fileFieldNode().value = '';
 		this.setState({
 			removeExisting: false,
-			localSource:    null,
-			origin:         false,
-			action:         null
+			localSource: null,
+			origin: false,
+			action: null,
 		});
 	},
 
-	fileChanged  (event) {//eslint-disable-line no-unused-vars
+	fileChanged (event) { // eslint-disable-line no-unused-vars
 		this.setState({
-			origin: 'local'
+			origin: 'local',
 		});
 	},
 
-	removeFile  (e) {
+	removeFile (e) {
 		var state = {
 			localSource: null,
-			origin: false
+			origin: false,
 		};
 
 		if (this.hasLocal()) {
@@ -86,18 +84,22 @@ module.exports = Field.create({
 	},
 
 	hasFile () {
-		return this.hasExisting();
+		return this.hasExisting() || this.hasLocal();
 	},
 
 	hasExisting () {
-		return !!this.props.value.filename;
+		return this.props.value && !!this.props.value.filename;
 	},
 
 	getFilename () {
-		return 'TODO getFileName';
+		if (this.hasLocal()) {
+			return this.fileFieldNode().value.split('\\').pop();
+		} else {
+			return this.props.value.filename;
+		}
 	},
 
-	renderFileDetails  (add) {
+	renderFileDetails (add) {
 		var values = null;
 
 		if (this.hasFile() && !this.state.removeExisting) {
@@ -200,8 +202,15 @@ module.exports = Field.create({
 
 
 	getImageSource () {
-		var value = this.props.value;
-		return urlUtils.resolve(this.props.host || '', value.path + value.filename);
+		if (this.hasLocal()) {
+			return this.state.localSource;
+		} else if (this.hasExisting()) {
+			var value = this.props.value;
+			return urlUtils.resolve(this.props.host || '', value.path + value.filename);
+// 			return this.props.value.url;
+		} else {
+			return null;
+		}
 	},
 
 
@@ -244,7 +253,7 @@ module.exports = Field.create({
 		}
 
 		return (
-			<FormField label={this.props.label} className="field-type-local field-type-local-image">
+			<FormField label={this.props.label} className="field-type-localfile field-type-local field-type-local-image" htmlFor={this.props.path}>
 
 				{this.renderFileField()}
 				{this.renderFileAction()}
@@ -257,6 +266,6 @@ module.exports = Field.create({
 
 			</FormField>
 		);
-	}
+	},
 
 });

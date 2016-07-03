@@ -13,21 +13,11 @@ var imgSize = require('image-size');
  * @extends Field
  * @api public
  */
-
-function localimage(list, path, options) {
-	grappling.mixin(this)
-		.allowHooks('move');
+function localimage (list, path, options) {
+	grappling.mixin(this).allowHooks('move');
 	this._underscoreMethods = ['format', 'uploadFile'];
 	this._fixedSize = 'full';
-
-	// TODO: implement filtering, usage disabled for now
-	options.nofilter = true;
-
-	// TODO: implement initial form, usage disabled for now
-	if (options.initial) {
-		throw new Error('Invalid Configuration\n\n' +
-			'localimage fields (' + list.key + '.' + path + ') do not currently support being used as initial fields.\n');
-	}
+	this.autoCleanup = options.autoCleanup || false;
 
 	if (options.overwrite !== false) {
 		options.overwrite = true;
@@ -37,8 +27,8 @@ function localimage(list, path, options) {
 
 	// validate destination dir
 	if (!options.dest) {
-		throw new Error('Invalid Configuration\n\n' +
-			'localimage fields (' + list.key + '.' + path + ') require the "dest" option to be set.');
+		throw new Error('Invalid Configuration\n\n'
+			+ 'localimage fields (' + list.key + '.' + path + ') require the "dest" option to be set.');
 	}
 
 	this.destRoot = options.destRoot || '';
@@ -56,6 +46,7 @@ function localimage(list, path, options) {
 	}
 
 }
+localimage.properName = 'LocalImage';
 util.inherits(localimage, FieldType);
 
 /**
@@ -63,44 +54,43 @@ util.inherits(localimage, FieldType);
  *
  * @api public
  */
+localimage.prototype.addToSchema = function () {
 
-localimage.prototype.addToSchema = function() {
-
-	var field = this,
-		schema = this.list.schema;
+	var field = this;
+	var schema = this.list.schema;
 
 	var paths = this.paths = {
 		// fields
-		filename:		this._path.append('.filename'),
-		originalname:		this._path.append('.originalname'),
-		path:			this._path.append('.path'),
-		size:			this._path.append('.size'),
-		width:			this._path.append('.width'),
-		height:			this._path.append('.height'),
-		filetype:		this._path.append('.filetype'),
+		filename: this._path.append('.filename'),
+		originalname: this._path.append('.originalname'),
+		path: this._path.append('.path'),
+		size: this._path.append('.size'),
+		width: this._path.append('.width'),
+		height: this._path.append('.height'),
+		filetype: this._path.append('.filetype'),
 		// virtuals
-		exists:			this._path.append('.exists'),
-		href:			this._path.append('.href'),
-		upload:			this._path.append('_upload'),
-		action:			this._path.append('_action')
+		exists: this._path.append('.exists'),
+		href: this._path.append('.href'),
+		upload: this._path.append('_upload'),
+		action: this._path.append('_action'),
 	};
 
 	var schemaPaths = this._path.addTo({}, {
-		filename:		String,
-		originalname:   String,
-		path:			String,
-		size:			Number,
-		filetype:		String,
-		width:          Number,
-		height:         Number
+		filename: String,
+		originalname: String,
+		path: String,
+		size: Number,
+		filetype: String,
+		width: Number,
+		height: Number,
 	});
 
 	schema.add(schemaPaths);
 
 	// exists checks for a matching file at run-time
-	var exists = function(item) {
-		var filepath = item.get(paths.path),
-			filename = item.get(paths.filename);
+	var exists = function (item) {
+		var filepath = item.get(paths.path);
+		var filename = item.get(paths.filename);
 
 		if (!filepath || !filename) {
 			return false;
@@ -110,27 +100,27 @@ localimage.prototype.addToSchema = function() {
 	};
 
 	// The .exists virtual indicates whether a file is stored
-	schema.virtual(paths.exists).get(function() {
+	schema.virtual(paths.exists).get(function () {
 		return schemaMethods.exists.apply(this);
 	});
 
 	// The .href virtual returns the public path of the file
-	schema.virtual(paths.href).get(function() {
-		return field.href.call(field, this);
+	schema.virtual(paths.href).get(function () {
+		return field.href(this);
 	});
 
 	// reset clears the value of the field
-	var reset = function(item) {
+	var reset = function (item) {
 		item.set(field.path, {
 			filename: '',
 			path: '',
 			size: 0,
-			filetype: ''
+			filetype: '',
 		});
 	};
 
 	var schemaMethods = {
-		exists: function() {
+		exists: function () {
 			return exists(this);
 		},
 		/**
@@ -138,7 +128,7 @@ localimage.prototype.addToSchema = function() {
 		 *
 		 * @api public
 		 */
-		reset: function() {
+		reset: function () {
 			reset(this);
 		},
 		/**
@@ -146,26 +136,25 @@ localimage.prototype.addToSchema = function() {
 		 *
 		 * @api public
 		 */
-		delete: function() {
+		delete: function () {
 			if (exists(this)) {
 				fs.unlinkSync(path.join(this.get(paths.path), this.get(paths.filename)));
 			}
 			reset(this);
-		}
+		},
 	};
 
-	_.each(schemaMethods, function(fn, key) {
+	_.forEach(schemaMethods, function (fn, key) {
 		field.underscoreMethod(key, fn);
 	});
 
 	// expose a method on the field to call schema methods
-	this.apply = function(item, method) {
+	this.apply = function (item, method) {
 		return schemaMethods[method].apply(item, Array.prototype.slice.call(arguments, 2));
 	};
 
 	this.bindUnderscoreMethods();
 };
-
 
 /**
  * Formats the field value
@@ -173,8 +162,7 @@ localimage.prototype.addToSchema = function() {
  * Delegates to the options.format function if it exists.
  * @api public
  */
-
-localimage.prototype.format = function(item) {
+localimage.prototype.format = function (item) {
 	if (!item.get(this.paths.filename)) return '';
 	if (this.hasFormatter()) {
 		var file = item.get(this.path);
@@ -184,89 +172,108 @@ localimage.prototype.format = function(item) {
 	return this.href(item);
 };
 
-
 /**
  * Detects whether the field has formatter function
  *
  * @api public
  */
-
-localimage.prototype.hasFormatter = function() {
-	return 'function' === typeof this.options.format;
+localimage.prototype.hasFormatter = function () {
+	return typeof this.options.format === 'function';
 };
-
 
 /**
  * Return the public href for the stored file
  *
  * @api public
  */
-
-localimage.prototype.href = function(item) {
+localimage.prototype.href = function (item) {
 	if (!item.get(this.paths.filename)) return '';
 	var prefix = this.options.prefix ? this.options.prefix : item.get(this.paths.path);
 	return prefix + '/' + item.get(this.paths.filename);
 };
-
 
 /**
  * Detects whether the field has been modified
  *
  * @api public
  */
-
-localimage.prototype.isModified = function(item) {
+localimage.prototype.isModified = function (item) {
 	return item.isModified(this.paths.path);
 };
 
 
+function validateInput (value) {
+	// undefined values are always valid
+	if (value === undefined) return true;
+	// TODO: strings may not actually be valid but this will be OK for now
+	// If a string is provided, assume it's a file path and move the file into
+	// place. Come back and check the file actually exists if a string is provided
+	if (typeof value === 'string') return true;
+	// If the value is an object with a path, it is valid
+	if (typeof value === 'object' && value.path) return true;
+	return false;
+}
+
+/**
+ * Validates that a value for this field has been provided in a data object
+ */
+localimage.prototype.validateInput = function (data, callback) {
+	var value = this.getValueFromData(data);
+	utils.defer(callback, validateInput(value));
+};
+
+/**
+ * Validates that input has been provided
+ */
+localimage.prototype.validateRequiredInput = function (item, data, callback) {
+	var value = this.getValueFromData(data);
+	var result = (value || item.get(this.path).path) ? true : false;
+	utils.defer(callback, result);
+};
+
 /**
  * Validates that a value for this field has been provided in a data object
  *
- * @api public
+ * Deprecated
  */
-
-localimage.prototype.inputIsValid = function(data) {//eslint-disable-line no-unused-vars
+localimage.prototype.inputIsValid = function (data) { // eslint-disable-line no-unused-vars
 	// TODO - how should file field input be validated?
 	return true;
 };
-
 
 /**
  * Updates the value for this field in the item from a data object
  *
  * @api public
  */
-
-localimage.prototype.updateItem = function(item, data) {//eslint-disable-line no-unused-vars
+localimage.prototype.updateItem = function (item, data, callback) { // eslint-disable-line no-unused-vars
 	// TODO - direct updating of data (not via upload)
+	process.nextTick(callback);
 };
-
 
 /**
  * Uploads the file for this field
  *
  * @api public
  */
+localimage.prototype.uploadFile = function (item, file, update, callback) {
+	var field = this;
+	var prefix = field.options.datePrefix ? moment().format(field.options.datePrefix) + '-' : '';
+	var filename = prefix + file.name;
+	var filetype = file.mimetype || file.type;
 
-localimage.prototype.uploadFile = function(item, file, update, callback) {
-	var field = this,
-		prefix = field.options.datePrefix ? moment().format(field.options.datePrefix) + '-' : '',
-		filename = prefix + file.name,
-		filetype = file.mimetype || file.type;
-
-	if (field.options.allowedTypes && !_.contains(field.options.allowedTypes, filetype)) {
+	if (field.options.allowedTypes && !_.includes(field.options.allowedTypes, filetype)) {
 		return callback(new Error('Unsupported File Type: ' + filetype));
 	}
 
-	if ('function' === typeof update) {
+	if (typeof update === 'function') {
 		callback = update;
 		update = false;
 	}
 
-	var doMove = function(callback) {
+	var doMove = function (callback) {
 
-		if ('function' === typeof field.options.filename) {
+		if (typeof field.options.filename === 'function') {
 			filename = field.options.filename(item, file);
 		}
 
@@ -284,7 +291,7 @@ localimage.prototype.uploadFile = function(item, file, update, callback) {
 				size: file.size,
 				filetype: filetype,
 				width: img.width,
-				height: img.height
+				height: img.height,
 			};
 
 			if (update) {
@@ -296,18 +303,17 @@ localimage.prototype.uploadFile = function(item, file, update, callback) {
 		});
 	};
 
-	field.callHook('pre:move', item, file, function(err) {
+	field.callHook('pre:move', item, file, function (err) {
 		if (err) return callback(err);
-		doMove(function(err, fileData) {
+		doMove(function (err, fileData) {
 			if (err) return callback(err);
-			field.callHook('post:move', [item, file, fileData], function(err) {
+			field.callHook('post:move', [item, file, fileData], function (err) {
 				if (err) return callback(err);
 				callback(null, fileData);
 			});
 		});
 	});
 };
-
 
 /**
  * Returns a callback that handles a standard form submission for the field
@@ -318,8 +324,7 @@ localimage.prototype.uploadFile = function(item, file, update, callback) {
  *
  * @api public
  */
-
-localimage.prototype.getRequestHandler = function(item, req, paths, callback) {
+localimage.prototype.getRequestHandler = function (item, req, paths, callback) {
 
 	var field = this;
 
@@ -330,9 +335,9 @@ localimage.prototype.getRequestHandler = function(item, req, paths, callback) {
 		paths = field.paths;
 	}
 
-	callback = callback || function() {};
+	callback = callback || function () {};
 
-	return function() {
+	return function () {
 
 		if (req.body) {
 			var action = req.body[paths.action];
@@ -352,20 +357,14 @@ localimage.prototype.getRequestHandler = function(item, req, paths, callback) {
 
 };
 
-
 /**
  * Immediately handles a standard form submission for the field (see `getRequestHandler()`)
  *
  * @api public
  */
-
-localimage.prototype.handleRequest = function(item, req, paths, callback) {
+localimage.prototype.handleRequest = function (item, req, paths, callback) {
 	this.getRequestHandler(item, req, paths, callback)();
 };
 
-
-/*!
- * Export class
- */
-
+/* Export Field Type */
 module.exports = localimage;
