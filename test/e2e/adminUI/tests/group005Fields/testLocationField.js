@@ -1,38 +1,59 @@
 var fieldTests = require('./commonFieldTestUtils.js');
+var LocationModelTestConfig = require('../../../modelTestConfig/LocationModelTestConfig');
 
 module.exports = {
 	before: fieldTests.before,
 	after: fieldTests.after,
 	'Location field should show correctly in the initial modal': function (browser) {
-		browser.app.openFieldList('Location');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
+		browser.adminUIApp.openList({section: 'fields', list: 'Location'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
 
-		browser.initialFormPage.assertUI({
-			listName: 'Location',
-			fields: ['name', 'fieldA'],
-			args: { 'showMore': false },
+		browser.adminUIInitialFormScreen.assertFieldUIVisible({
+			modelTestConfig: LocationModelTestConfig,
+			fields: [
+				{name: 'name'},
+				{
+					name: 'fieldA',
+					options: {showMore: false}
+				}
+			],
 		});
 
-		browser.initialFormPage.section.form.section.locationList.section.fieldA.showMore();
+		browser.adminUIInitialFormScreen.clickFieldUI({
+			modelTestConfig: LocationModelTestConfig,
+			fields: {
+				'fieldA': {'click': 'showMore'},
+			}
+		});
 
-		browser.initialFormPage.assertUI({
-			listName: 'Location',
-			fields: ['name', 'fieldA'],
-			args: { 'showMore': true },
+		browser.adminUIInitialFormScreen.assertFieldUIVisible({
+			modelTestConfig: LocationModelTestConfig,
+			fields: [
+				{name: 'name'},
+				{
+					name: 'fieldA',
+					options: {showMore: true}
+				}
+			],
 		});
 	},
 	'restoring test state': function(browser) {
-		browser.initialFormPage.cancel();
-		browser.app.waitForListScreen();
+		browser.adminUIInitialFormScreen.cancel();
+		browser.adminUIApp.waitForListScreen();
 	},
 	'Location field can be filled via the initial modal': function(browser) {
-		browser.app.openFieldList('Location');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
-		browser.initialFormPage.section.form.section.locationList.section.fieldA.showMore();
-		browser.initialFormPage.fillInputs({
-			listName: 'Location',
+		browser.adminUIApp.openList({section: 'fields', list: 'Location'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
+		browser.adminUIInitialFormScreen.clickFieldUI({
+			modelTestConfig: LocationModelTestConfig,
+			fields: {
+				'fieldA': {'click': 'showMore'},
+			}
+		});
+		browser.adminUIInitialFormScreen.fillFieldInputs({
+			modelTestConfig: LocationModelTestConfig,
 			fields: {
 				'name': {value: 'Location Field Test 1'},
 				'fieldA': {
@@ -49,8 +70,8 @@ module.exports = {
 				},
 			}
 		});
-		browser.initialFormPage.assertInputs({
-			listName: 'Location',
+		browser.adminUIInitialFormScreen.assertFieldInputs({
+			modelTestConfig: LocationModelTestConfig,
 			fields: {
 				'name': {value: 'Location Field Test 1'},
 				'fieldA': {
@@ -67,11 +88,11 @@ module.exports = {
 				},
 			}
 		});
-		browser.initialFormPage.save();
-		browser.app.waitForItemScreen();
+		browser.adminUIInitialFormScreen.save();
+		browser.adminUIApp.waitForItemScreen();
 
-		browser.itemPage.assertInputs({
-			listName: 'Location',
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: LocationModelTestConfig,
 			fields: {
 				'name': {value: 'Location Field Test 1'},
 				'fieldA': {
@@ -90,26 +111,42 @@ module.exports = {
 		})
 	},
 	'Location field should show correctly in the edit form': function(browser) {
-		browser.itemPage.assertUI({
-			listName: 'Location',
-			fields: ['fieldA'],
-			args: { 'showMore': true },
+		browser.adminUIItemScreen.assertFieldUIVisible({
+			modelTestConfig: LocationModelTestConfig,
+			fields: [
+				{
+					name: 'fieldA',
+					options: {showMore: true}
+				},
+				{
+					name: 'fieldB',
+					options: {showMore: false}
+				}
+			],
 		});
-		browser.itemPage.assertUI({
-			listName: 'Location',
-			fields: ['fieldB'],
-			args: { 'showMore': false },
+		browser.adminUIItemScreen.clickFieldUI({
+			modelTestConfig: LocationModelTestConfig,
+			fields: {
+				'fieldB': {'click': 'showMore'},
+			}
 		});
-		browser.itemPage.section.form.section.locationList.section.fieldB.showMore();
-		browser.itemPage.assertUI({
-			listName: 'Location',
-			fields: ['fieldB'],
-			args: { 'showMore': true },
+		browser.adminUIItemScreen.assertFieldUIVisible({
+			modelTestConfig: LocationModelTestConfig,
+			fields: [
+				{
+					name: 'fieldA',
+					options: {showMore: true}
+				},
+				{
+					name: 'fieldB',
+					options: {showMore: true}
+				}
+			],
 		});
 	},
 	'Location field can be filled via the edit form': function(browser) {
-		browser.itemPage.fillInputs({
-			listName: 'Location',
+		browser.adminUIItemScreen.fillFieldInputs({
+			modelTestConfig: LocationModelTestConfig,
 			fields: {
 				'fieldB': {
 					'number': 'Field B',
@@ -125,11 +162,11 @@ module.exports = {
 				},
 			}
 		});
-		browser.itemPage.save();
-		browser.app.waitForItemScreen();
-		browser.itemPage.assertFlashMessage('Your changes have been saved successfully');
-		browser.itemPage.assertInputs({
-			listName: 'Location',
+		browser.adminUIItemScreen.save();
+		browser.adminUIApp.waitForItemScreen();
+		browser.adminUIItemScreen.assertFlashMessage('Your changes have been saved successfully');
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: LocationModelTestConfig,
 			fields: {
 				'name': {value: 'Location Field Test 1'},
 				'fieldA': {

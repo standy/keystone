@@ -4,7 +4,8 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import assign from 'object-assign';
+import vkey from 'vkey';
 import AlertMessages from './AlertMessages';
 import { Fields } from 'FieldTypes';
 import InvalidFieldType from './InvalidFieldType';
@@ -31,9 +32,8 @@ const CreateForm = React.createClass({
 		var values = {};
 		Object.keys(this.props.list.fields).forEach(key => {
 			var field = this.props.list.fields[key];
-			if (field.defaultValue) {
-				values[field.path] = field.defaultValue;
-			}
+			var FieldComponent = Fields[field.type];
+			values[field.path] = FieldComponent.getDefaultValue(field);
 		});
 		return {
 			values: values,
@@ -41,26 +41,19 @@ const CreateForm = React.createClass({
 		};
 	},
 	componentDidMount () {
-		this.focusTarget();
+		document.body.addEventListener('keyup', this.handleKeyPress, false);
 	},
-	componentDidUpdate (prevProps) {
-		// If we just opened the modal an animation is playing
-		if (this.props.isOpen !== prevProps.isOpen) {
-			// focus the focusTarget after the animation has started
-			setTimeout(() => {
-				this.focusTarget();
-			}, 0);
-		}
+	componentWillUnmount () {
+		document.body.removeEventListener('keyup', this.handleKeyPress, false);
 	},
-	// Focus the first input field
-	focusTarget () {
-		if (this.refs.focusTarget) {
-			this.refs.focusTarget.focus();
+	handleKeyPress (evt) {
+		if (vkey[evt.keyCode] === '<escape>') {
+			this.props.onCancel();
 		}
 	},
 	// Handle input change events
 	handleChange (event) {
-		var values = Object.assign({}, this.state.values);
+		var values = assign({}, this.state.values);
 		values[event.path] = event.value;
 		this.setState({
 			values: values,
@@ -68,7 +61,7 @@ const CreateForm = React.createClass({
 	},
 	// Set the props of a field
 	getFieldProps (field) {
-		var props = Object.assign({}, field);
+		var props = assign({}, field);
 		props.value = this.state.values[field.path];
 		props.values = this.state.values;
 		props.onChange = this.handleChange;
@@ -79,7 +72,7 @@ const CreateForm = React.createClass({
 	// Create a new item when the form is submitted
 	submitForm (event) {
 		event.preventDefault();
-		const createForm = ReactDOM.findDOMNode(this.refs.createForm);
+		const createForm = event.target;
 		const formData = new FormData(createForm);
 		this.props.list.createItem(formData, (err, data) => {
 			if (data) {
@@ -97,6 +90,11 @@ const CreateForm = React.createClass({
 					});
 				}
 			} else {
+				if (!err) {
+					err = {
+						error: 'connection error',
+					};
+				}
 				// If we get a database error, show the database error message
 				// instead of only saying "Database error"
 				if (err.error === 'database error') {
@@ -117,17 +115,17 @@ const CreateForm = React.createClass({
 		var form = [];
 		var list = this.props.list;
 		var nameField = this.props.list.nameField;
-		var focusRef;
+		var focusWasSet;
 
 		// If the name field is an initial one, we need to render a proper
 		// input for it
 		if (list.nameIsInitial) {
 			var nameFieldProps = this.getFieldProps(nameField);
-			nameFieldProps.ref = focusRef = 'focusTarget';
+			nameFieldProps.autoFocus = focusWasSet = true;
 			if (nameField.type === 'text') {
 				nameFieldProps.className = 'item-name-field';
 				nameFieldProps.placeholder = nameField.label;
-				nameFieldProps.label = false;
+				nameFieldProps.label = '';
 			}
 			form.push(React.createElement(Fields[nameField.type], nameFieldProps));
 		}
@@ -146,15 +144,14 @@ const CreateForm = React.createClass({
 			// If there was no focusRef set previously, set the current field to
 			// be the one to be focussed. Generally the first input field, if
 			// there's an initial name field that takes precedence.
-			if (!focusRef) {
-				fieldProps.ref = focusRef = 'focusTarget';
+			if (!focusWasSet) {
+				fieldProps.autoFocus = focusWasSet = true;
 			}
 			form.push(React.createElement(Fields[field.type], fieldProps));
 		});
 
 		return (
 			<Form
-				ref="createForm"
 				type="horizontal"
 				onSubmit={this.submitForm}
 				className="create-form"

@@ -1,95 +1,122 @@
 var fieldTests = require('./commonFieldTestUtils.js');
+var NumberArrayModelTestConfig = require('../../../modelTestConfig/NumberArrayModelTestConfig');
 
 module.exports = {
 	before: fieldTests.before,
 	after: fieldTests.after,
 	'NumberArray field should show correctly in the initial modal': function (browser) {
-		browser.app.openFieldList('NumberArray');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
+		browser.adminUIApp.openList({section: 'fields', list: 'NumberArray'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
 
-		browser.initialFormPage.assertUI({
-			listName: 'NumberArray',
-			fields: ['name']
+		browser.adminUIInitialFormScreen.assertFieldUIVisible({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: [{name: 'name'}]
 		});
 	},
 	'restoring test state': function(browser) {
-		browser.initialFormPage.cancel();
-		browser.app.waitForListScreen();
+		browser.adminUIInitialFormScreen.cancel();
+		browser.adminUIApp.waitForListScreen();
 	},
 	'NumberArray field can be filled via the initial modal': function(browser) {
-		browser.app.openFieldList('NumberArray');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
-		browser.initialFormPage.fillInputs({
-			listName: 'NumberArray',
+		browser.adminUIApp.openList({section: 'fields', list: 'NumberArray'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
+		browser.adminUIInitialFormScreen.fillFieldInputs({
+			modelTestConfig: NumberArrayModelTestConfig,
 			fields: {
 				'name': {value: 'NumberArray Field Test 1'},
 			}
 		});
-		 browser.initialFormPage.assertInputs({
-			 listName: 'NumberArray',
-			 fields: {
-			 	'name': {value: 'NumberArray Field Test 1'},
-			 }
-		 });
-		browser.initialFormPage.save();
-		browser.app.waitForItemScreen();
-		 browser.itemPage.assertInputs({
-			 listName: 'NumberArray',
-			 fields: {
-			 	'name': {value: 'NumberArray Field Test 1'},
-			 }
-		 })
+		browser.adminUIInitialFormScreen.assertFieldInputs({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: {
+				'name': {value: 'NumberArray Field Test 1'},
+			}
+		});
+		browser.adminUIInitialFormScreen.save();
+		browser.adminUIApp.waitForItemScreen();
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: {
+				'name': {value: 'NumberArray Field Test 1'},
+			}
+		})
 	},
 	'NumberArray field should show correctly in the edit form': function(browser) {
-		browser.itemPage.assertUI({
-			listName: 'NumberArray',
-			fields: ['fieldA', 'fieldB']
+		browser.adminUIItemScreen.assertFieldUIVisible({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: [{name: 'fieldA'}, {name: 'fieldB'}]
 		});
-		browser.itemPage.section.form.section.numberarrayList.section.fieldA.addNumber();
-		browser.itemPage.assertUI({
-			listName: 'NumberArray',
-			fields: ['fieldA'],
-			args: {'numberInputs': ['number1']}
+		browser.adminUIItemScreen.clickFieldUI({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: {
+				'fieldA': {'click': 'addButton'},
+			}
 		});
-		browser.itemPage.section.form.section.numberarrayList.section.fieldA.addNumber();
-		browser.itemPage.assertUI({
-			listName: 'NumberArray',
-			fields: ['fieldA'],
-			args: {'numberInputs': ['number1', 'number2']}
+		browser.adminUIItemScreen.assertFieldUIVisible({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: [{
+				name: 'fieldA',
+				options: {'numberInputs': ['number1']}
+			}],
 		});
-		browser.itemPage.section.form.section.numberarrayList.section.fieldB.addNumber();
-		browser.itemPage.section.form.section.numberarrayList.section.fieldB.addNumber();
-		browser.itemPage.assertUI({
-			listName: 'NumberArray',
-			fields: ['fieldB'],
-			args: {'numberInputs': ['number1', 'number2']}
+		browser.adminUIItemScreen.clickFieldUI({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: {
+				'fieldA': {'click': 'addButton'},
+			}
+		});
+		browser.adminUIItemScreen.assertFieldUIVisible({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: [{
+				name: 'fieldA',
+				options: {'numberInputs': ['number1', 'number2']}
+			}],
+		});
+		browser.adminUIItemScreen.clickFieldUI({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: {
+				'fieldB': {'click': 'addButton'},
+			}
+		});
+		browser.adminUIItemScreen.clickFieldUI({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: {
+				'fieldB': {'click': 'addButton'},
+			}
+		});
+		browser.adminUIItemScreen.assertFieldUIVisible({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: [{
+				name: 'fieldB',
+				options:{'numberInputs': ['number1', 'number2']}
+			}],
 		});
 	},
 	'NumberArray field can be filled via the edit form': function(browser) {
-		browser.itemPage.fillInputs({
-			listName: 'NumberArray',
+		browser.adminUIItemScreen.fillFieldInputs({
+			modelTestConfig: NumberArrayModelTestConfig,
 			fields: {
 				'fieldA': {number1: '1', number2: '2'}
 			}
 		});
-		browser.itemPage.fillInputs({
-			listName: 'NumberArray',
+		browser.adminUIItemScreen.fillFieldInputs({
+			modelTestConfig: NumberArrayModelTestConfig,
 			fields: {
 				'fieldB': {number1: '3', number2: '4'}
 			}
 		});
-		browser.itemPage.save();
-		browser.app.waitForItemScreen();
-		browser.itemPage.assertFlashMessage('Your changes have been saved successfully');
-		browser.itemPage.assertInputs({
-			listName: 'NumberArray',
-		 	fields: {
-		 		'name': {value: 'NumberArray Field Test 1'},
-		 		'fieldA': {number1: '1', number2: '2'},
-		 		'fieldB': {number1: '3', number2: '4'},
-		 	}
-		 })
+		browser.adminUIItemScreen.save();
+		browser.adminUIApp.waitForItemScreen();
+		browser.adminUIItemScreen.assertFlashMessage('Your changes have been saved successfully');
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: NumberArrayModelTestConfig,
+			fields: {
+				'name': {value: 'NumberArray Field Test 1'},
+				'fieldA': {number1: '1', number2: '2'},
+				'fieldB': {number1: '3', number2: '4'},
+			}
+		})
 	},
 };

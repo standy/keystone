@@ -1,45 +1,46 @@
 var fieldTests = require('./commonFieldTestUtils.js');
+var UrlModelTestConfig = require('../../../modelTestConfig/UrlModelTestConfig');
 
 module.exports = {
 	before: fieldTests.before,
 	after: fieldTests.after,
 	'Url field should show correctly in the initial modal': function (browser) {
-		browser.app.openFieldList('Url');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
+		browser.adminUIApp.openList({section: 'fields', list: 'Url'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
 
-		browser.initialFormPage.assertUI({
-			listName: 'Url',
-			fields: ['name', 'fieldA']
+		browser.adminUIInitialFormScreen.assertFieldUIVisible({
+			modelTestConfig: UrlModelTestConfig,
+			fields: [{name: 'name'}, {name: 'fieldA'}]
 		});
 	},
 	'restoring test state': function(browser) {
-		browser.initialFormPage.cancel();
-		browser.app.waitForListScreen();
+		browser.adminUIInitialFormScreen.cancel();
+		browser.adminUIApp.waitForListScreen();
 	},
 	'Url field can be filled via the initial modal': function(browser) {
-		browser.app.openFieldList('Url');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
-		browser.initialFormPage.fillInputs({
-			listName: 'Url',
+		browser.adminUIApp.openList({section: 'fields', list: 'Url'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
+		browser.adminUIInitialFormScreen.fillFieldInputs({
+			modelTestConfig: UrlModelTestConfig,
 			fields: {
 				'name': {value: 'Url Field Test 1'},
 				'fieldA': {value: 'http://www.example1.com'},
 			}
 		});
-		browser.initialFormPage.assertInputs({
-			listName: 'Url',
+		browser.adminUIInitialFormScreen.assertFieldInputs({
+			modelTestConfig: UrlModelTestConfig,
 			fields: {
 				'name': {value: 'Url Field Test 1'},
 				'fieldA': {value: 'http://www.example1.com'},
 			}
 		});
-		browser.initialFormPage.save();
-		browser.app.waitForItemScreen();
+		browser.adminUIInitialFormScreen.save();
+		browser.adminUIApp.waitForItemScreen();
 
-		browser.itemPage.assertInputs({
-			listName: 'Url',
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: UrlModelTestConfig,
 			fields: {
 				'name': {value: 'Url Field Test 1'},
 				'fieldA': {value: 'http://www.example1.com'},
@@ -47,23 +48,23 @@ module.exports = {
 		})
 	},
 	'Url field should show correctly in the edit form': function(browser) {
-		browser.itemPage.assertUI({
-			listName: 'Url',
-			fields: ['fieldA', 'fieldB']
+		browser.adminUIItemScreen.assertFieldUIVisible({
+			modelTestConfig: UrlModelTestConfig,
+			fields: [{name: 'fieldA'}, {name: 'fieldB'}]
 		});
 	},
 	'Url field can be filled via the edit form': function(browser) {
-		browser.itemPage.fillInputs({
-			listName: 'Url',
+		browser.adminUIItemScreen.fillFieldInputs({
+			modelTestConfig: UrlModelTestConfig,
 			fields: {
 				'fieldB': {value: 'http://www.example2.com'}
 			}
 		});
-		browser.itemPage.save();
-		browser.app.waitForItemScreen();
-		browser.itemPage.assertFlashMessage('Your changes have been saved successfully');
-		browser.itemPage.assertInputs({
-			listName: 'Url',
+		browser.adminUIItemScreen.save();
+		browser.adminUIApp.waitForItemScreen();
+		browser.adminUIItemScreen.assertFlashMessage('Your changes have been saved successfully');
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: UrlModelTestConfig,
 			fields: {
 				'name': {value: 'Url Field Test 1'},
 				'fieldA': {value: 'http://www.example1.com'},

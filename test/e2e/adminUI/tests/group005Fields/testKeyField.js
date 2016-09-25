@@ -1,45 +1,46 @@
 var fieldTests = require('./commonFieldTestUtils.js');
+var KeyModelTestConfig = require('../../../modelTestConfig/KeyModelTestConfig');
 
 module.exports = {
 	before: fieldTests.before,
 	after: fieldTests.after,
 	'Key field should show correctly in the initial modal': function (browser) {
-		browser.app.openFieldList('Key');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
+		browser.adminUIApp.openList({section: 'fields', list: 'Key'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
 
-		browser.initialFormPage.assertUI({
-			listName: 'Key',
-			fields: ['name', 'fieldA']
+		browser.adminUIInitialFormScreen.assertFieldUIVisible({
+			modelTestConfig: KeyModelTestConfig,
+			fields: [{name: 'name'}, {name: 'fieldA'}]
 		});
 	},
 	'restoring test state': function(browser) {
-		browser.initialFormPage.cancel();
-		browser.app.waitForListScreen();
+		browser.adminUIInitialFormScreen.cancel();
+		browser.adminUIApp.waitForListScreen();
 	},
 	'Key field can be filled via the initial modal': function(browser) {
-		browser.app.openFieldList('Key');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
-		browser.initialFormPage.fillInputs({
-			listName: 'Key',
+		browser.adminUIApp.openList({section: 'fields', list: 'Key'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
+		browser.adminUIInitialFormScreen.fillFieldInputs({
+			modelTestConfig: KeyModelTestConfig,
 			fields: {
 				'name': {value: 'Key Field Test 1'},
 				'fieldA': {value: 'A test key for field A'},
 			}
 		});
-		browser.initialFormPage.assertInputs({
-			listName: 'Key',
+		browser.adminUIInitialFormScreen.assertFieldInputs({
+			modelTestConfig: KeyModelTestConfig,
 			fields: {
 				'name': {value: 'Key Field Test 1'},
 				'fieldA': {value: 'A test key for field A'},
 			}
 		});
-		browser.initialFormPage.save();
-		browser.app.waitForItemScreen();
+		browser.adminUIInitialFormScreen.save();
+		browser.adminUIApp.waitForItemScreen();
 
-		browser.itemPage.assertInputs({
-			listName: 'Key',
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: KeyModelTestConfig,
 			fields: {
 				'name': {value: 'Key Field Test 1'},
 				'fieldA': {value: 'a-test-key-for-field-a'},
@@ -47,23 +48,23 @@ module.exports = {
 		})
 	},
 	'Key field should show correctly in the edit form': function(browser) {
-		browser.itemPage.assertUI({
-			listName: 'Key',
-			fields: ['fieldA', 'fieldB']
+		browser.adminUIItemScreen.assertFieldUIVisible({
+			modelTestConfig: KeyModelTestConfig,
+			fields: [{name: 'fieldA'}, {name: 'fieldB'}]
 		});
 	},
 	'Key field can be filled via the edit form': function(browser) {
-		browser.itemPage.fillInputs({
-			listName: 'Key',
+		browser.adminUIItemScreen.fillFieldInputs({
+			modelTestConfig: KeyModelTestConfig,
 			fields: {
 				'fieldB': {value: 'A test key for field B'}
 			}
 		});
-		browser.itemPage.save();
-		browser.app.waitForItemScreen();
-		browser.itemPage.assertFlashMessage('Your changes have been saved successfully');
-		browser.itemPage.assertInputs({
-			listName: 'Key',
+		browser.adminUIItemScreen.save();
+		browser.adminUIApp.waitForItemScreen();
+		browser.adminUIItemScreen.assertFlashMessage('Your changes have been saved successfully');
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: KeyModelTestConfig,
 			fields: {
 				'name': {value: 'Key Field Test 1'},
 				'fieldA': {value: 'a-test-key-for-field-a'},

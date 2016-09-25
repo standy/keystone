@@ -1,4 +1,5 @@
-import { remove, map } from 'lodash';
+import _ from 'lodash';
+import assign from 'object-assign';
 
 import {
 	ADD_FILTER,
@@ -28,7 +29,7 @@ const initialState = {
 function active (state = initialState, action) {
 	switch (action.type) {
 		case SET_ACTIVE_LIST:
-			return Object.assign({}, state, {
+			return assign({}, state, {
 				id: action.id,
 				columns: action.list.expandColumns(action.list.defaultColumns),
 				filters: [],
@@ -36,52 +37,34 @@ function active (state = initialState, action) {
 				sort: action.list.expandSort(action.list.defaultSort),
 			});
 		case SET_ACTIVE_SEARCH:
-			return Object.assign({}, state, {
+			return assign({}, state, {
 				search: action.searchString,
 			});
 		case SET_ACTIVE_SORT:
-			return Object.assign({}, state, {
+			return assign({}, state, {
 				sort: action.sort,
 			});
 		case SET_ACTIVE_COLUMNS:
-			return Object.assign({}, state, {
+			return assign({}, state, {
 				columns: action.columns,
 			});
 		case ADD_FILTER:
-			let existsIndex;
-			let filters;
-			let activeFilters = state.filters;
-			// Check if a filter for the passed path exists already, and save the
-			// index if it does
-			const filterExists = Object.keys(activeFilters).some((filter, index) => {
-				existsIndex = index;
-				return activeFilters[filter].field.path === action.filter.field.path;
-			});
-			// If a filter doesn't exists already, simply add it to the existing filters value
-			if (!filterExists) {
-				filters = activeFilters.concat(action.filter);
-			// otherwise replace it with the new filter
-			} else {
-				filters = map(activeFilters, (filter, index) => {
-					if (index === existsIndex) {
-						return action.filter;
-					} else {
-						return filter;
-					}
-				});
-			}
-			return Object.assign({}, state, {
-				filters,
+			return assign({}, state, {
+				// Override existing filter with field path,
+				// otherwise add to filters array
+				filters: _.unionWith([action.filter], state.filters, (stateFilter, actionFilter) => {
+					return stateFilter.field.path === actionFilter.field.path;
+				}),
 			});
 		case CLEAR_FILTER:
-			let newFilters = remove(state.filters, (filter) => {
+			let newFilters = _.filter(state.filters, (filter) => {
 				return filter.field.path !== action.path;
 			});
-			return Object.assign({}, state, {
+			return assign({}, state, {
 				filters: newFilters,
 			});
 		case CLEAR_ALL_FILTERS:
-			return Object.assign({}, state, {
+			return assign({}, state, {
 				filters: [],
 			});
 		default:

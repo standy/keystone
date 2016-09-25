@@ -61,18 +61,18 @@ localimage.prototype.addToSchema = function () {
 
 	var paths = this.paths = {
 		// fields
-		filename: this._path.append('.filename'),
-		originalname: this._path.append('.originalname'),
-		path: this._path.append('.path'),
-		size: this._path.append('.size'),
-		width: this._path.append('.width'),
-		height: this._path.append('.height'),
-		filetype: this._path.append('.filetype'),
+		filename: this.path + '.filename',
+		originalname: this.path + '.originalname',
+		path: this.path + '.path',
+		size: this.path + '.size',
+		width: this.path + '.width',
+		height: this.path + '.height',
+		filetype: this.path + '.filetype',
 		// virtuals
-		exists: this._path.append('.exists'),
-		href: this._path.append('.href'),
-		upload: this._path.append('_upload'),
-		action: this._path.append('_action'),
+		exists: this.path + '.exists',
+		href: this.path + '.href',
+		upload: this.path + '_upload',
+		action: this.path + '_action',
 	};
 
 	var schemaPaths = this._path.addTo({}, {

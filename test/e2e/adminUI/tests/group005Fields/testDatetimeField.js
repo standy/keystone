@@ -1,47 +1,49 @@
 var fieldTests = require('./commonFieldTestUtils.js');
+var DatetimeModelTestConfig = require('../../../modelTestConfig/DatetimeModelTestConfig');
 
 module.exports = {
+	'@disabled': true, // TODO:  https://github.com/keystonejs/keystone/issues/3330
 	before: fieldTests.before,
 	after: fieldTests.after,
 	'Datetime field should show correctly in the initial modal': function (browser) {
-		browser.app.openFieldList('Datetime');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
+		browser.adminUIApp.openList({section: 'fields', list: 'Datetime'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
 
-		browser.initialFormPage.assertUI({
-			listName: 'Datetime',
-			fields: ['name', 'fieldA']
+		browser.adminUIInitialFormScreen.assertFieldUIVisible({
+			modelTestConfig: DatetimeModelTestConfig,
+			fields: [{name: 'name'}, {name: 'fieldA'}]
 		});
 	},
 	'restoring test state': function(browser) {
-		browser.initialFormPage.cancel();
-		browser.app.waitForListScreen();
+		browser.adminUIInitialFormScreen.cancel();
+		browser.adminUIApp.waitForListScreen();
 	},
 	'Datetime field can be filled via the initial modal': function(browser) {
-		browser.app.openFieldList('Datetime');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
-		browser.initialFormPage.fillInputs({
-			listName: 'Datetime',
+		browser.adminUIApp.openList({section: 'fields', list: 'Datetime'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
+		browser.adminUIInitialFormScreen.fillFieldInputs({
+			modelTestConfig: DatetimeModelTestConfig,
 			fields: {
 				'name': {value: 'Datetime Field Test 1'},
 				'fieldA': {date: '2016-01-01', time: '12:00:00 am'},
 			}
 		});
 		/* TODO Pending fix of timezone issues which are causing Travis CI to fail
-		browser.initialFormPage.assertInputs({
-			listName: 'Datetime',
+		browser.adminUIInitialFormScreen.assertFieldInputs({
+			modelTestConfig: DatetimeModelTestConfig,
 			fields: {
 				'name': {value: 'Datetime Field Test 1'},
 				'fieldA': {date: '2016-01-01', time: '12:00:00 am'},
 			}
 		});
 		*/
-		browser.initialFormPage.save();
-		browser.app.waitForItemScreen();
+		browser.adminUIInitialFormScreen.save();
+		browser.adminUIApp.waitForItemScreen();
 		/* TODO Pending fix of timezone issues which are causing Travis CI to fail
-		browser.itemPage.assertInputs({
-			listName: 'Datetime',
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: DatetimeModelTestConfig,
 			fields: {
 				'name': {value: 'Datetime Field Test 1'},
 				'fieldA': {date: '2016-01-01', time: '12:00:00 am'},
@@ -50,24 +52,24 @@ module.exports = {
 		*/
 	},
 	'Datetime field should show correctly in the edit form': function(browser) {
-		browser.itemPage.assertUI({
-			listName: 'Datetime',
-			fields: ['fieldA', 'fieldB']
+		browser.adminUIItemScreen.assertFieldUIVisible({
+			modelTestConfig: DatetimeModelTestConfig,
+			fields: [{name: 'fieldA'}, {name: 'fieldB'}]
 		});
 	},
 	'Datetime field can be filled via the edit form': function(browser) {
-		browser.itemPage.fillInputs({
-			listName: 'Datetime',
+		browser.adminUIItemScreen.fillFieldInputs({
+			modelTestConfig: DatetimeModelTestConfig,
 			fields: {
 				'fieldB': {date: '2016-01-02', time: '12:00:00 am'}
 			}
 		});
-		browser.itemPage.save();
-		browser.app.waitForItemScreen();
-		browser.itemPage.assertFlashMessage('Your changes have been saved successfully');
+		browser.adminUIItemScreen.save();
+		browser.adminUIApp.waitForItemScreen();
+		browser.adminUIItemScreen.assertFlashMessage('Your changes have been saved successfully');
 		/* TODO Pending fix of timezone issues which are causing Travis CI to fail
-		browser.itemPage.assertInputs({
-			listName: 'Datetime',
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: DatetimeModelTestConfig,
 			fields: {
 				'name': {value: 'Datetime Field Test 1'},
 				'fieldA': {date: '2016-01-01', time: '12:00:00 am'},

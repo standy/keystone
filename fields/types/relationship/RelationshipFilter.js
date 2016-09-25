@@ -1,5 +1,7 @@
+import _ from 'lodash';
 import async from 'async';
 import React from 'react';
+import { findDOMNode } from 'react-dom';
 import xhr from 'xhr';
 
 import { FormField, FormInput, SegmentedControl } from 'elemental';
@@ -76,7 +78,7 @@ var RelationshipFilter = React.createClass({
 				valueIsLoading: false,
 				selectedItems: items || [],
 			}, () => {
-				this.refs.focusTarget.focus();
+				findDOMNode(this.refs.focusTarget).focus();
 			});
 		});
 	},
@@ -86,6 +88,7 @@ var RelationshipFilter = React.createClass({
 	buildFilters () {
 		var filters = {};
 		_.forEach(this.props.field.filters, function (value, key) {
+			if (value[0] === ':') return;
 			filters[key] = value;
 		}, this);
 
@@ -174,7 +177,7 @@ var RelationshipFilter = React.createClass({
 					<SegmentedControl equalWidthSegments options={INVERTED_OPTIONS} value={this.props.filter.inverted} onChange={this.toggleInverted} />
 				</FormField>
 				<FormField style={{ borderBottom: '1px dashed rgba(0,0,0,0.1)', paddingBottom: '1em' }}>
-					<FormInput autofocus ref="focusTarget" value={this.state.searchString} onChange={this.updateSearch} placeholder={placeholder} />
+					<FormInput autoFocus ref="focusTarget" value={this.state.searchString} onChange={this.updateSearch} placeholder={placeholder} />
 				</FormField>
 				{selectedItems.length ? (
 					<PopoutList>

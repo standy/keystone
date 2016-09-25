@@ -1,18 +1,19 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import Transition from 'react-addons-css-transition-group';
+import { findDOMNode } from 'react-dom';
+import Transition
+	from 'react-addons-css-transition-group';
 import classnames from 'classnames';
 import ListFiltersAddForm from './ListFiltersAddForm';
 import Popout from '../../../../shared/Popout';
 import PopoutList from '../../../../shared/Popout/PopoutList';
-import { Button, FormField, FormInput, InputGroup } from 'elemental';
+import { FormField, FormInput } from 'elemental';
+import ListHeaderButton from '../ListHeaderButton';
 
 import { setFilter } from '../../actions';
 
 var ListFiltersAdd = React.createClass({
 	displayName: 'ListFiltersAdd',
 	propTypes: {
-		className: React.PropTypes.string.isRequired,
 		maxHeight: React.PropTypes.number,
 	},
 	getDefaultProps () {
@@ -27,9 +28,6 @@ var ListFiltersAdd = React.createClass({
 			searchString: '',
 			selectedField: false,
 		};
-	},
-	componentWillReceiveProps (nextProps) {
-		this.setState({ isOpen: nextProps.isOpen });
 	},
 	updateSearch (e) {
 		this.setState({ searchString: e.target.value });
@@ -51,7 +49,7 @@ var ListFiltersAdd = React.createClass({
 		}, this.focusSearch);
 	},
 	focusSearch () {
-		ReactDOM.findDOMNode(this.refs.search).focus();
+		findDOMNode(this.refs.search).focus();
 	},
 	selectField (field) {
 		this.setState({
@@ -125,23 +123,32 @@ var ListFiltersAdd = React.createClass({
 		});
 
 		return (
-			<InputGroup.Section className={this.props.className}>
-				<Button id="listHeaderFilterButton" isActive={this.state.isOpen} onClick={this.state.isOpen ? this.closePopout : this.openPopout}>
-					<span className={this.props.className + '__icon octicon octicon-eye'} />
-					<span className={this.props.className + '__label'}>Filter</span>
-					<span className="disclosure-arrow" />
-				</Button>
+			<div>
+				<ListHeaderButton
+					active={this.state.isOpen}
+					id="listHeaderFilterButton"
+					glyph="eye"
+					label="Filter"
+					onClick={this.state.isOpen ? this.closePopout : this.openPopout}
+				/>
 				<Popout isOpen={this.state.isOpen} onCancel={this.closePopout} relativeToID="listHeaderFilterButton">
 					<Popout.Header
 						leftAction={selectedField ? this.navigateBack : null}
 						leftIcon={selectedField ? 'chevron-left' : null}
 						title={selectedField ? selectedField.label : 'Filter'}
 						transitionDirection={selectedField ? 'next' : 'prev'} />
-					<Transition style={popoutBodyStyle} className={popoutPanesClassname} transitionName={selectedField ? 'Popout__pane-next' : 'Popout__pane-prev'} component="div">
+					<Transition
+						className={popoutPanesClassname}
+						component="div"
+						style={popoutBodyStyle}
+						transitionName={selectedField ? 'Popout__pane-next' : 'Popout__pane-prev'}
+						transitionEnterTimeout={350}
+						transitionLeaveTimeout={350}
+						>
 						{selectedField ? this.renderForm() : this.renderList()}
 					</Transition>
 				</Popout>
-			</InputGroup.Section>
+			</div>
 		);
 	},
 });

@@ -1,122 +1,119 @@
+var NameModelTestConfig = require('../../../modelTestConfig/NameModelTestConfig');
+
 module.exports = {
 	before: function (browser) {
-		browser.app = browser.page.app();
-		browser.signinScreen = browser.page.signin();
-		browser.homeScreen = browser.page.home();
-		browser.initialForm = browser.page.initialForm();
-		browser.listScreen = browser.page.list();
-		browser.deleteConfirmation = browser.page.deleteConfirmation();
+		browser.adminUIApp = browser.page.adminUIApp();
+		browser.adminUISignin = browser.page.adminUISignin();
+		browser.adminUIHomeScreen = browser.page.adminUIHomeScreen();
+		browser.adminUIInitialFormScreen = browser.page.adminUIInitialForm();
+		browser.adminUIListScreen = browser.page.adminUIListScreen();
+		browser.adminUIDeleteConfirmation = browser.page.adminUIDeleteConfirmation();
 
-		browser.app.navigate();
-		browser.app.waitForElementVisible('@signinScreen');
+		browser.adminUIApp.gotoHomeScreen();
+		browser.adminUIApp.waitForSigninScreen();
 
-		browser.signinScreen.signin();
-		browser.app.waitForElementVisible('@homeScreen');
+		browser.adminUISignin.signin();
+
+		browser.adminUIApp.waitForHomeScreen();
 	},
 	after: function (browser) {
-		browser.app.signout();
+		browser.adminUIApp.signout();
 		browser.end();
 	},
 	'Home view should allow clicking a nav menu item such as Access and Fields to show the list of items': function (browser) {
-		browser.app
-			.navigate()
-			.waitForElementVisible('@homeScreen')
+		browser.adminUIApp
+			.waitForHomeScreen()
 			.click('@accessMenu')
-			.waitForElementVisible('@listScreen')
-			.navigate()
-			.waitForElementVisible('@homeScreen')
+			.waitForListScreen();
+		browser.adminUIApp.gotoHomeScreen();
+		browser.adminUIApp.waitForHomeScreen()
 			.click('@fieldListsMenu')
-			.waitForElementVisible('@listScreen');
+			.waitForListScreen();
 	},
 	'Home view should allow clicking a card list item such as Users to should show the list of those items': function (browser) {
-		browser.app
-			.navigate()
-			.waitForElementVisible('@homeScreen');
+		browser.adminUIApp.gotoHomeScreen();
+		browser.adminUIApp.waitForHomeScreen();
 
-		browser.homeScreen.section.accessGroup.section.users
+		browser.adminUIHomeScreen.section.accessGroup.section.users
 			.click('@label');
 
-		browser.app
-			.waitForElementVisible('@listScreen');
+		browser.adminUIApp
+			.waitForListScreen();
 	},
 	'Home view should allow an admin to create a new list item such as a user': function (browser) {
-		browser.app
-			.navigate()
-			.waitForElementVisible('@homeScreen');
+		browser.adminUIApp.gotoHomeScreen();
+		browser.adminUIApp.waitForHomeScreen();
 
-		browser.homeScreen.section.accessGroup.section.users
+		browser.adminUIHomeScreen.section.accessGroup.section.users
 			.click('@plusIconLink');
 
-		browser.initialForm.section.form
+		browser.adminUIInitialFormScreen.section.form
 			.waitForElementVisible('@createButton');
 	},
 	'Home view should allow an admin to create a new list item and increment the item count': function (browser) {
-		browser.app
-			.navigate()
-			.waitForElementVisible('@homeScreen');
+		browser.adminUIApp.gotoHomeScreen();
+		browser.adminUIApp.waitForHomeScreen();
 
-		browser.homeScreen.section.fieldsGroup.section.names
+		browser.adminUIHomeScreen.section.fieldsGroup.section.names
 			.expect.element('@itemCount').text.to.equal('0 Items');
-		browser.homeScreen.section.fieldsGroup.section.names
+		browser.adminUIHomeScreen.section.fieldsGroup.section.names
 			.click('@plusIconLink');
 
-		browser.initialForm.section.form
-			.waitForElementVisible('@createButton');
+		browser.adminUIApp.waitForInitialFormScreen();
 
-		browser.initialForm.section.form.section.nameList.section.name
-			.fillInput({value: 'Name Field Test'});
-		browser.initialForm.section.form.section.nameList.section.fieldA
-			.fillInput({firstName: 'First', lastName: 'Last'});
+		browser.adminUIInitialFormScreen.fillFieldInputs({
+			modelTestConfig: NameModelTestConfig,
+			fields: {
+				'name': {value: 'Name Field Test'},
+				'fieldA': {firstName: 'First', lastName: 'Last'},
+			}
+		});
 
-		browser.initialForm.section.form
-			.click('@createButton');
+		browser.adminUIInitialFormScreen.save();
 
-		browser.app
-			.waitForElementVisible('@itemScreen')
-			.navigate()
-			.waitForElementVisible('@homeScreen');
+		browser.adminUIApp.waitForItemScreen();
+		browser.adminUIApp.gotoHomeScreen();
+		browser.adminUIApp.waitForHomeScreen();
 
-		browser.homeScreen.section.fieldsGroup.section.names
+		browser.adminUIHomeScreen.section.fieldsGroup.section.names
 			.expect.element('@itemCount').text.to.equal('1 Item');
 	},
 	'Home view should be accessible from any other non-modal view by clicking the Home link': function (browser) {
-		browser.app
-			.navigate()
-			.waitForElementVisible('@homeScreen');
+		browser.adminUIApp.gotoHomeScreen();
+		browser.adminUIApp.waitForHomeScreen();
 
-		browser.homeScreen.section.accessGroup.section.users
+		browser.adminUIHomeScreen.section.accessGroup.section.users
 			.click('@label');
-		browser.app
-			.waitForElementVisible('@listScreen');
+		browser.adminUIApp
+			.waitForListScreen();
 
-		browser.app
+		browser.adminUIApp
 			.click('@homeIconLink')
-			.waitForElementVisible('@homeScreen');
+			.waitForHomeScreen();
 	},
 	// UNDO ANY STATE CHANGES -- THIS TEST SHOULD RUN LAST
 	'Home view ... undoing any state changes': function (browser) {
 		// Delete the Name Field added
-		browser.app
-			.navigate()
-			.waitForElementVisible('@homeScreen');
+		browser.adminUIApp.gotoHomeScreen();
+		browser.adminUIApp.waitForHomeScreen();
 
-		browser.app
+		browser.adminUIApp
 			.click('@fieldListsMenu')
-			.waitForElementVisible('@listScreen');
+			.waitForListScreen();
 
-		browser.app
+		browser.adminUIApp
 			.click('@nameListSubmenu')
-			.waitForElementVisible('@listScreen');
+			.waitForListScreen();
 
-		browser.listScreen
+		browser.adminUIListScreen
 			.click('@singleItemDeleteIcon');
 
-		browser.deleteConfirmation
+		browser.adminUIDeleteConfirmation
 			.waitForElementVisible('@deleteButton');
 
-		browser.deleteConfirmation
+		browser.adminUIDeleteConfirmation
 			.click('@deleteButton');
 
-		browser.app.waitForListScreen();
+		browser.adminUIApp.waitForListScreen();
 	},
 };

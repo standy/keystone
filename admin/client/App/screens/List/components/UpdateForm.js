@@ -1,6 +1,7 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Select from 'react-select';
+import { findDOMNode } from 'react-dom';
+import assign from 'object-assign';
 import { Fields } from 'FieldTypes';
 import InvalidFieldType from '../../../shared/InvalidFieldType';
 import { plural } from '../../../../utils/string';
@@ -25,13 +26,14 @@ var UpdateForm = React.createClass({
 		};
 	},
 	componentDidMount () {
-		if (this.refs.focusTarget) {
-			this.refs.focusTarget.focus();
-		}
+		this.doFocus();
 	},
 	componentDidUpdate () {
+		this.doFocus();
+	},
+	doFocus () {
 		if (this.refs.focusTarget) {
-			this.refs.focusTarget.focus();
+			findDOMNode(this.refs.focusTarget).focus();
 		}
 	},
 	getOptions () {
@@ -39,7 +41,7 @@ var UpdateForm = React.createClass({
 		return Object.keys(fields).map(key => ({ value: fields[key].path, label: fields[key].label }));
 	},
 	getFieldProps (field) {
-		var props = Object.assign({}, field);
+		var props = assign({}, field);
 		props.value = this.state.fields[field.path];
 		props.values = this.state.fields;
 		props.onChange = this.handleChange;
@@ -50,9 +52,7 @@ var UpdateForm = React.createClass({
 	updateOptions (fields) {
 		this.setState({
 			fields: fields,
-		}, () => {
-			ReactDOM.findDOMNode(this.refs.focusTarget).focus();
-		});
+		}, this.doFocus);
 	},
 	handleChange (value) {
 		console.log('handleChange:', value);
@@ -102,9 +102,7 @@ var UpdateForm = React.createClass({
 		const formAction = `${Keystone.adminPath}/${list.path}`;
 
 		return (
-			<Form type="horizontal" encType="multipart/form-data" method="post" action={formAction} noValidate="true">
-				<input type="hidden" name="action" value="update" />
-				<input type="hidden" name={Keystone.csrf.key} value={Keystone.csrf.value} />
+			<Form type="horizontal" action={formAction} noValidate="true">
 				<Modal.Header text={'Update ' + itemCount} onClose={this.handleClose} showCloseButton />
 				<Modal.Body>
 					<Select ref="initialFocusTarget" onChange={this.updateOptions} options={this.getOptions()} value={this.state.fields} key="field-select" multi />

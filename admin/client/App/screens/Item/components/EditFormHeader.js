@@ -1,11 +1,16 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { findDOMNode } from 'react-dom';
+import { connect } from 'react-redux';
+
 import Toolbar from './Toolbar';
 import ToolbarSection from './Toolbar/ToolbarSection';
-import { Button, FormIconField, FormInput, ResponsiveText } from 'elemental';
+import { FormIconField, FormInput, ResponsiveText } from 'elemental';
 import { Link } from 'react-router';
 
-var Header = React.createClass({
+import Drilldown from './Drilldown';
+import { GlyphButton } from '../../../elemental';
+
+export const EditFormHeader = React.createClass({
 	displayName: 'EditFormHeader',
 	propTypes: {
 		data: React.PropTypes.object,
@@ -29,7 +34,7 @@ var Header = React.createClass({
 		const escapeKeyCode = 27;
 
 		if (event.which === escapeKeyCode) {
-			ReactDOM.findDOMNode(this.refs.searchField).blur();
+			findDOMNode(this.refs.searchField).blur();
 		}
 	},
 	renderDrilldown () {
@@ -41,46 +46,58 @@ var Header = React.createClass({
 		);
 	},
 	renderDrilldownItems () {
+		const { data, list } = this.props;
+		const items = data.drilldown ? data.drilldown.items : [];
 
-		var list = this.props.list;
-		var items = this.props.data.drilldown ? this.props.data.drilldown.items : [];
+		let backPath = `${Keystone.adminPath}/${list.path}`;
+		const backStyles = { paddingLeft: 0, paddingRight: 0 };
+		// Link to the list page the user came from
+		if (this.props.listActivePage && this.props.listActivePage > 1) {
+			backPath = `${backPath}?page=${this.props.listActivePage}`;
+		}
 
-		var els = items.map((dd, i) => {
-			var links = [];
-
-			dd.items.forEach((el, i) => {
-				links.push(<Link key={'dd' + i} to={el.href} title={dd.list.singular}>{el.label}</Link>);
-				if (i < dd.items.length - 1) {
-					links.push(<span key={'ds' + i} className="separator">,</span>); // eslint-disable-line comma-spacing
-				}
-			});
-
-			var more = dd.more ? <span>...</span> : '';
-
+		// return a single back button when no drilldown exists
+		if (!items.length) {
 			return (
-				<li key={`dd-${i}`}>
-					{links}
-					{more}
-				</li>
+				<GlyphButton
+					component={Link}
+					data-e2e-editform-header-back
+					glyph="chevron-left"
+					position="left"
+					style={backStyles}
+					to={backPath}
+					variant="link"
+					>
+					{list.plural}
+				</GlyphButton>
 			);
+		}
+
+		// prepare the drilldown elements
+		const drilldown = [];
+		items.forEach((item, idx) => {
+			// FIXME @jedwatson
+			// we used to support relationships of type MANY where items were
+			// represented as siblings inside a single list item; this got a
+			// bit messy...
+			item.items.forEach(link => {
+				drilldown.push({
+					href: link.href,
+					label: link.label,
+					title: item.list.singular,
+				});
+			});
 		});
 
-		if (!els.length) {
-			return (
-				<Link className="EditForm__header__back" to={`${Keystone.adminPath}/${list.path}`}>
-					<span className="octicon octicon-chevron-left" />
-					{list.plural}
-				</Link>
-			);
-		} else {
-			// add the current list
-			els.push(
-				<li key="back">
-					<Link className="EditForm__header__back" to={`${Keystone.adminPath}/${list.path}`}>{list.plural}</Link>
-				</li>
-			);
-			return <ul className="item-breadcrumbs" key="drilldown">{els}</ul>;
-		}
+		// add the current list to the drilldown
+		drilldown.push({
+			href: backPath,
+			label: list.plural,
+		});
+
+		return (
+			<Drilldown items={drilldown} />
+		);
 	},
 	renderSearch () {
 		var list = this.props.list;
@@ -108,19 +125,20 @@ var Header = React.createClass({
 		);
 	},
 	renderCreateButton () {
-		if (this.props.list.nocreate) return null;
+		const { nocreate, autocreate, singular } = this.props.list;
 
-		var props = {};
-		if (this.props.list.autocreate) {
+		if (nocreate) return null;
+
+		let props = {};
+		if (autocreate) {
 			props.href = '?new' + Keystone.csrf.query;
 		} else {
 			props.onClick = () => { this.toggleCreate(true); };
 		}
 		return (
-			<Button type="success" {...props}>
-				<span className="octicon octicon-plus" />
-				<ResponsiveText hiddenXS={`New ${this.props.list.singular}`} visibleXS="Create" />
-			</Button>
+			<GlyphButton data-e2e-item-create-button="true" color="success" glyph="plus" position="left" {...props}>
+				<ResponsiveText hiddenXS={`New ${singular}`} visibleXS="Create" />
+			</GlyphButton>
 		);
 	},
 	render () {
@@ -133,4 +151,6 @@ var Header = React.createClass({
 	},
 });
 
-module.exports = Header;
+export default connect((state) => ({
+	listActivePage: state.lists.page.index,
+}))(EditFormHeader);

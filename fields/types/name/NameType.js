@@ -12,7 +12,6 @@ var displayName = require('display-name');
 function name (list, path, options) {
 	this._fixedSize = 'full';
 	options.default = { first: '', last: '' };
-	options.nofilter = true; // TODO: remove this when 0.4 is merged
 	name.super_.call(this, list, path, options);
 }
 name.properName = 'Name';
@@ -26,12 +25,11 @@ util.inherits(name, FieldType);
  *
  * @api public
  */
-name.prototype.addToSchema = function () {
-	var schema = this.list.schema;
+name.prototype.addToSchema = function (schema) {
 	var paths = this.paths = {
-		first: this._path.append('.first'),
-		last: this._path.append('.last'),
-		full: this._path.append('.full'),
+		first: this.path + '.first',
+		last: this.path + '.last',
+		full: this.path + '.full',
 	};
 
 	schema.nested[this.path] = true;

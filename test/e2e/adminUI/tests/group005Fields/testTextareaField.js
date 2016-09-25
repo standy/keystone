@@ -1,45 +1,46 @@
 var fieldTests = require('./commonFieldTestUtils.js');
+var TextareaModelTestConfig = require('../../../modelTestConfig/TextareaModelTestConfig');
 
 module.exports = {
 	before: fieldTests.before,
 	after: fieldTests.after,
 	'Textarea field should show correctly in the initial modal': function (browser) {
-		browser.app.openFieldList('Textarea');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
+		browser.adminUIApp.openList({section: 'fields', list: 'Textarea'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
 
-		browser.initialFormPage.assertUI({
-			listName: 'Textarea',
-			fields: ['name', 'fieldA']
+		browser.adminUIInitialFormScreen.assertFieldUIVisible({
+			modelTestConfig: TextareaModelTestConfig,
+			fields: [{name: 'name'}, {name: 'fieldA'}]
 		});
 	},
 	'restoring test state': function(browser) {
-		browser.initialFormPage.cancel();
-		browser.app.waitForListScreen();
+		browser.adminUIInitialFormScreen.cancel();
+		browser.adminUIApp.waitForListScreen();
 	},
 	'Textarea field can be filled via the initial modal': function(browser) {
-		browser.app.openFieldList('Textarea');
-		browser.listPage.createFirstItem();
-		browser.app.waitForInitialFormScreen();
-		browser.initialFormPage.fillInputs({
-			listName: 'Textarea',
+		browser.adminUIApp.openList({section: 'fields', list: 'Textarea'});
+		browser.adminUIListScreen.clickCreateItemButton();
+		browser.adminUIApp.waitForInitialFormScreen();
+		browser.adminUIInitialFormScreen.fillFieldInputs({
+			modelTestConfig: TextareaModelTestConfig,
 			fields: {
 				'name': {value: 'Textarea Field Test 1'},
 				'fieldA': {value: 'Some test text for field A'},
 			}
 		});
-		browser.initialFormPage.assertInputs({
-			listName: 'Textarea',
+		browser.adminUIInitialFormScreen.assertFieldInputs({
+			modelTestConfig: TextareaModelTestConfig,
 			fields: {
 				'name': {value: 'Textarea Field Test 1'},
 				'fieldA': {value: 'Some test text for field A'},
 			}
 		});
-		browser.initialFormPage.save();
-		browser.app.waitForItemScreen();
+		browser.adminUIInitialFormScreen.save();
+		browser.adminUIApp.waitForItemScreen();
 
-		browser.itemPage.assertInputs({
-			listName: 'Textarea',
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: TextareaModelTestConfig,
 			fields: {
 				'name': {value: 'Textarea Field Test 1'},
 				'fieldA': {value: 'Some test text for field A'},
@@ -47,23 +48,23 @@ module.exports = {
 		})
 	},
 	'Textarea field should show correctly in the edit form': function(browser) {
-		browser.itemPage.assertUI({
-			listName: 'Textarea',
-			fields: ['fieldA', 'fieldB']
+		browser.adminUIItemScreen.assertFieldUIVisible({
+			modelTestConfig: TextareaModelTestConfig,
+			fields: [{name: 'fieldA'}, {name: 'fieldB'}]
 		});
 	},
 	'Textarea field can be filled via the edit form': function(browser) {
-		browser.itemPage.fillInputs({
-			listName: 'Textarea',
+		browser.adminUIItemScreen.fillFieldInputs({
+			modelTestConfig: TextareaModelTestConfig,
 			fields: {
 				'fieldB': {value: 'Some test text for field B'}
 			}
 		});
-		browser.itemPage.save();
-		browser.app.waitForItemScreen();
-		browser.itemPage.assertFlashMessage('Your changes have been saved successfully');
-		browser.itemPage.assertInputs({
-			listName: 'Textarea',
+		browser.adminUIItemScreen.save();
+		browser.adminUIApp.waitForItemScreen();
+		browser.adminUIItemScreen.assertFlashMessage('Your changes have been saved successfully');
+		browser.adminUIItemScreen.assertFieldInputs({
+			modelTestConfig: TextareaModelTestConfig,
 			fields: {
 				'name': {value: 'Textarea Field Test 1'},
 				'fieldA': {value: 'Some test text for field A'},

@@ -45,8 +45,6 @@ var ListSort = React.createClass({
 	openPopout () {
 		this.setState({
 			popoutIsOpen: true,
-		}, () => {
-			this.refs.search.focus();
 		});
 	},
 	closePopout () {
@@ -102,7 +100,7 @@ var ListSort = React.createClass({
 			<span>
 				{activeSortPath && (
 					<span>
-						<span className="ListHeader__sortedby"> sorted by </span>
+						<span style={{ color: '#999' }}> sorted by </span>
 						<a id="listHeaderSortButton" href="javascript:;" onClick={this.openPopout}>
 							{activeSortPath.label.toLowerCase()}
 							{activeSortPath.invert ? ' (descending)' : ''}
@@ -116,7 +114,7 @@ var ListSort = React.createClass({
 					<Popout.Body scrollable>
 						<FormField style={formFieldStyles}>
 							<FormInput
-								ref="search"
+								autoFocus
 								value={this.state.searchString}
 								onChange={this.updateSearch}
 								placeholder="Find a field..."
