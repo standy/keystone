@@ -3,6 +3,9 @@ import moment from 'moment';
 import ItemsTableCell from '../../components/ItemsTableCell';
 import ItemsTableValue from '../../components/ItemsTableValue';
 
+const DATE_FORMAT = 'DD.MM.YYYY';
+const DATETIME_FORMAT = 'DD.MM.YYYY, H:mm:ss';
+
 var DateColumn = React.createClass({
 	displayName: 'DateColumn',
 	propTypes: {
@@ -14,7 +17,7 @@ var DateColumn = React.createClass({
 		const value = this.props.data.fields[this.props.col.path];
 		if (!value) return null;
 
-		const format = (this.props.col.type === 'datetime') ? 'MMMM Do YYYY, h:mm:ss a' : 'MMMM Do YYYY';
+		const format = (this.props.col.type === 'datetime') ? DATETIME_FORMAT : DATE_FORMAT;
 		return moment(value).format(format);
 	},
 	render () {

@@ -11,6 +11,9 @@ import {
 	InlineGroupSection as Section,
 } from '../../../admin/client/App/elemental';
 
+const DATE_FORMAT = 'DD.MM.YYYY';
+const DATETIME_FORMAT = 'DD.MM.YYYY, H:mm:ss';
+
 module.exports = Field.create({
 
 	displayName: 'DatetimeField',
@@ -26,7 +29,7 @@ module.exports = Field.create({
 	tzOffsetInputFormat: 'Z',
 
 	// parse formats (duplicated from lib/fieldTypes/datetime.js)
-	parseFormats: ['YYYY-MM-DD', 'YYYY-MM-DD h:m:s a', 'YYYY-MM-DD h:m a', 'YYYY-MM-DD H:m:s', 'YYYY-MM-DD H:m'],
+	parseFormats: ['YYYY-MM-DD', DATETIME_FORMAT, 'YYYY-MM-DD h:m:s a', 'YYYY-MM-DD h:m a', 'YYYY-MM-DD H:m:s', 'YYYY-MM-DD H:m'],
 
 	getInitialState () {
 		return {
@@ -38,7 +41,7 @@ module.exports = Field.create({
 
 	getDefaultProps () {
 		return {
-			formatString: 'Do MMM YYYY, h:mm:ss a',
+			formatString: DATETIME_FORMAT,
 		};
 	},
 

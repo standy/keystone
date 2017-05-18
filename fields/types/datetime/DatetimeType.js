@@ -4,8 +4,12 @@ var FieldType = require('../Type');
 var util = require('util');
 var utils = require('keystone-utils');
 
+
+const DATE_FORMAT = 'DD.MM.YYYY';
+const DATETIME_FORMAT = 'DD.MM.YYYY, H:mm:ss';
+
 // ISO_8601 is needed for the automatically created createdAt and updatedAt fields
-var parseFormats = ['YYYY-MM-DD', 'YYYY-MM-DD h:m:s a', 'YYYY-MM-DD h:m a', 'YYYY-MM-DD H:m:s', 'YYYY-MM-DD H:m', 'YYYY-MM-DD h:mm:s a Z', moment.ISO_8601];
+var parseFormats = ['YYYY-MM-DD', DATETIME_FORMAT, 'YYYY-MM-DD h:m:s a', 'YYYY-MM-DD h:m a', 'YYYY-MM-DD H:m:s', 'YYYY-MM-DD H:m', 'YYYY-MM-DD h:mm:s a Z', moment.ISO_8601];
 /**
  * DateTime FieldType Constructor
  * @extends Field
@@ -18,7 +22,7 @@ function datetime (list, path, options) {
 	this._properties = ['formatString', 'isUTC'];
 	this.typeDescription = 'date and time';
 	this.parseFormatString = options.parseFormat || parseFormats;
-	this.formatString = (options.format === false) ? false : (options.format || 'YYYY-MM-DD h:mm:ss a');
+	this.formatString = (options.format === false) ? false : (options.format || DATETIME_FORMAT);
 	this.isUTC = options.utc || false;
 	if (this.formatString && typeof this.formatString !== 'string') {
 		throw new Error('FieldType.DateTime: options.format must be a string.');

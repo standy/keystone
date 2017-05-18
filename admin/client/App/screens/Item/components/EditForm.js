@@ -26,6 +26,9 @@ import { deleteItem } from '../actions';
 
 import { upcase } from '../../../../utils/string';
 
+const DATE_FORMAT = 'DD.MM.YYYY';
+const DATETIME_FORMAT = 'DD.MM.YYYY, H:mm:ss';
+
 function getNameFromData (data) {
 	if (typeof data === 'object') {
 		if (typeof data.first === 'string' && typeof data.last === 'string') {
@@ -316,7 +319,7 @@ var EditForm = React.createClass({
 			if (data.createdAt) {
 				elements.push(
 					<FormField key="createdAt" label="Created on">
-						<FormInput noedit title={moment(data.createdAt).format('DD/MM/YYYY h:mm:ssa')}>{moment(data.createdAt).format('Do MMM YYYY')}</FormInput>
+						<FormInput noedit title={moment(data.createdAt).format(DATETIME_FORMAT)}>{moment(data.createdAt).format(DATE_FORMAT)}</FormInput>
 					</FormField>
 				);
 			}
@@ -341,7 +344,7 @@ var EditForm = React.createClass({
 			if (data.updatedAt && (!data.createdAt || data.createdAt !== data.updatedAt)) {
 				elements.push(
 					<FormField key="updatedAt" label="Updated on">
-						<FormInput noedit title={moment(data.updatedAt).format('DD/MM/YYYY h:mm:ssa')}>{moment(data.updatedAt).format('Do MMM YYYY')}</FormInput>
+						<FormInput noedit title={moment(data.updatedAt).format(DATETIME_FORMAT)}>{moment(data.updatedAt).format(DATE_FORMAT)}</FormInput>
 					</FormField>
 				);
 			}
